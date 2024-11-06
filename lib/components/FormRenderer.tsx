@@ -7,6 +7,8 @@ import { FormController, FormRendererProps } from "../types/form";
 import defaultRenderer from "../renderers";
 import { getProperty, setProperty } from "dot-prop";
 import { produce } from "immer";
+import { goToSchemaSection } from "../utils";
+import { useMemo } from "react";
 
 function FormRendererChild<
   RootSchemaType extends JSONSchemaForm,
@@ -103,15 +105,10 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm>({
   className?: string;
 }) {
   const _render = render || defaultRenderer;
-  const selectedSchema =
-    section &&
-    schema.type === "object" &&
-    schema.properties &&
-    schema.properties[section] &&
-    typeof schema.properties[section] === "object" &&
-    schema.properties[section].formProperties === "section"
-      ? schema.properties[section]
-      : schema;
+  const selectedSchema = useMemo(
+    () => (section ? goToSchemaSection(schema, section) : schema),
+    [schema, section],
+  );
 
   return (
     <FormControllerContext.Provider
