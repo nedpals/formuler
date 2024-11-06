@@ -1,4 +1,3 @@
-import { produce } from "immer";
 import { FormController, FormControllerProps } from "./types/form";
 import {
   JSONSchemaForm,
@@ -6,26 +5,8 @@ import {
 } from "./types/json_schema_form";
 import Input from "./components/default_form_components/Input";
 import { JSONSchemaMultiTypeKeys } from "./types/json_schema";
-
-function mergeWithObject<V>(obj1: Record<string, V>, obj2: Record<string, V>) {
-  return produce(obj1, (draft) => {
-    for (const key in obj2) {
-      if (!Object.prototype.hasOwnProperty.call(draft, key)) {
-        // @ts-expect-error - we are adding a new key to the object
-        draft[key] = obj2[key];
-      } else if (
-        typeof draft[key] === "object" &&
-        typeof obj2[key] === "object"
-      ) {
-        //@ts-expect-error - we are using recursion to merge objects
-        draft[key] = mergeWithObject(draft[key], obj2[key]);
-      } else {
-        // @ts-expect-error - we are overwriting the key
-        draft[key] = obj2[key];
-      }
-    }
-  });
-}
+import { mergeWithObject } from "./utils";
+import { useMemo } from "react";
 
 const defaultFormComponentsByType: Record<
   Exclude<JSONSchemaForm["type"], JSONSchemaMultiTypeKeys>,
@@ -66,17 +47,26 @@ export default function defaultRenderer({
   };
   formComponentsByProperty?: Record<string, FormController>; // TODO: make it type safe. property refers to either the full property or the property
 }) {
-  const formComponentsByType = mergeWithObject(
-    defaultFormComponentsByType,
-    _formComponentsByType,
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const formComponentsByType = useMemo(
+    () => mergeWithObject(defaultFormComponentsByType, _formComponentsByType),
+    [_formComponentsByType],
   );
-  const formComponentsByFormType = mergeWithObject(
-    defaultFormComponentsByFormType,
-    _formComponentsByFormType,
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const formComponentsByFormType = useMemo(
+    () =>
+      mergeWithObject(
+        defaultFormComponentsByFormType,
+        _formComponentsByFormType,
+      ),
+    [_formComponentsByFormType],
   );
-  const formComponentsByProperty = mergeWithObject(
-    {},
-    _formComponentsByProperty,
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const formComponentsByProperty = useMemo(
+    () => mergeWithObject({}, _formComponentsByProperty),
+    [_formComponentsByProperty],
   );
 
   // Hierarchical order of precedence for component lookup:
