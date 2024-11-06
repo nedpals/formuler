@@ -2,6 +2,9 @@ import { createContext, useContext } from "react";
 import { JSONSchemaForm } from "./types/json_schema_form";
 import { FormController } from "./types/form";
 
+// FormControllerContext is a context that provides a set of
+// functions to interact with the form controller. This avoids
+// prop drilling and makes it easier to interact with the form.
 export interface FormControllerContextValue<
   RS extends JSONSchemaForm = JSONSchemaForm,
 > {
