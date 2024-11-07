@@ -1,11 +1,10 @@
+import { JSONSchemaForm } from "../../formuler";
 import { FormControllerProps } from "../../types/form";
 
-export default function Input({
-  value,
-  onChange,
-  formProperties,
-  schema,
-}: FormControllerProps) {
+export default function Input<
+  RS extends JSONSchemaForm = JSONSchemaForm,
+  S extends JSONSchemaForm = JSONSchemaForm,
+>({ value, onChange, formProperties, schema }: FormControllerProps<RS, S>) {
   const inputType =
     formProperties?.type === "input" ? formProperties.inputType : "text";
 
