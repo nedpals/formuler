@@ -99,6 +99,17 @@ adding custom properties, we can use them to define form properties inside the s
 ```json
 {
   "type": "object",
+  "formProperties": {
+    "type": "section",
+    "title": {
+      "type": "text",
+      "content": "Personal Information"
+    },
+    "description": {
+      "type": "text",
+      "content": "Please fill out the form below."
+    },
+  },
   "properties": {
     "name": {
       "type": "string",
@@ -116,57 +127,6 @@ adding custom properties, we can use them to define form properties inside the s
         "type": "input",
         "inputType": "number",
         "placeholder": "Enter your age"
-      }
-    }
-  }
-}
-```
-
-#### Form Slot Values (WIP, Not Final)
-For non-data properties such as creating sections or displaying images, JSF makes use
-of schema properties to define configurable form slot values. JSF form slot values prefixed
-with `$` to avoid conflicts with JSON Schema properties.
-
-This design makes it easier to customize later on when using JSF-compatible form generator tools.
-
-```json
-{
-  "type": "object",
-  "formProperties": {
-    "type": "section"
-  },
-  "properties": {
-    "$sectionTitle": {
-      "type": "string",
-    },
-    "$sectionDescription": {
-      "type": "string",
-    }
-    "name": {
-      "type": "string",
-      "formProperties": {
-        "type": "input",
-        "inputType": "text",
-        "placeholder": "Enter your name"
-      }
-    },
-    "submitButton": {
-      "type": "object",
-      "properties": {
-        "$buttonText": {
-          "type": "string",
-          "formProperties": {
-            "type": "text",
-          }
-        }
-      },
-      "formProperties": {
-        "type": "button",
-        "buttonType": "submit",
-        "action": {
-          "type": "section-redirect",
-          "section": "$next"
-        }
       }
     }
   }

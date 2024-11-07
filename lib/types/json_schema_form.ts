@@ -17,35 +17,11 @@ export interface JSFBase {
 // A section is a container for other JSF objects
 //
 // JSON schema type required: object
-//
-// To add a section title and description, the schema
-// associated with the section must have the following properties:
-// - $sectionTitle (type: string, jsfType: JSFText): The title of the section
-// - $sectionDescription (type: string, jsfType: JSFText): The description of the section
-//
-// The following properties must be added at the beginning of
-// the object schema:
-// {
-//  "type": "object",
-//  "properties": {
-//    "$sectionTitle": {
-//      "type": "string",
-//      "formProperties": {
-//        "type": "text",
-//      }
-//    },
-//    "$sectionDescription": {
-//      "type": "string",
-//      "formProperties": {
-//        "type": "text",
-//      }
-//    },
-//    ... rest of the properties
-//  },
-// }
 export interface JSFSection extends JSFBase {
   type: "section";
   layout?: JSFLayoutMeta;
+  title: JSFText;
+  description: JSFText;
 }
 
 // A layout is a container for other JSF objects
@@ -66,65 +42,62 @@ export interface JSFLayoutSettings {
   height?: number;
 }
 
-// A content object that displays non-input elements
+// A content object that displays non-input elements.
+//
+// JSON schema type required: object
+// Properties: {}
 export type JSFContent = JSFImage | JSFVideo | JSFOembed | JSFText;
 
 // An image object is an image element that can be displayed in a form
 //
-// JSON schema type required: object
-//
-// To add an image to a form, the schema associated with the image
-// must have the following properties:
-// - $src (type: string): The URL of the image
-// - $alt (type: string): The alt text of the image
-// - $caption (type: string): The caption of the image
-// - $poster (type: string): The URL of the image poster
+// See JSFContent for more information
 export interface JSFImage extends JSFBase {
   type: "image";
+  src: string;
+  alt?: string; // The alt text of the image
+  caption?: string; // The caption of the image
+  poster?: string; // The URL of the image poster
 }
 
 // A video object is a video element that can be displayed in a form
 //
-// JSON schema type required: object
-//
-// To add a video to a form, the schema associated with the video
-// must have the following properties:
-// - $src (type: string): The URL of the video
-// - $poster (type: string): The URL of the video poster image
+// See JSFContent for more information
 export interface JSFVideo extends JSFBase {
   type: "video";
+  src: string; // The URL of the video
+  poster?: string; // The URL of the video poster
 }
 
 // An oembed object is an oembed element that can be displayed in a form
 //
-// JSON schema type required: object
-// To add an oembed element to a form, the schema associated with the oembed
-// must have the following properties:
-// - $url (type: string): The URL of the oembed content
+// See JSFContent for more information
 export interface JSFOembed extends JSFBase {
   type: "oembed";
+  url: string; // The URL of the oembed content
 }
 
 // A text object is a text element that can be displayed in a form
 //
-// JSON schema type required: string
+// See JSFContent for more information
 export type JSFText = JSFPlainText | JSFRichText;
 
 // A plain text object is a plain text element that can be displayed in a form.
 // It is used for simple text elements that do not require any special formatting.
 // Use JSFRichText for rich text elements that require special formatting.
 //
-// JSON schema type required: string
+// See JSFContent for more information
 export interface JSFPlainText extends JSFBase {
   type: "text";
+  content: string;
 }
 
 // A rich text object is a rich text element that can be displayed in a form.
 // It is used for rich text elements that require special formatting.
 //
-// JSON schema type required: string
+// See JSFContent for more information
 export interface JSFRichText extends JSFBase {
   type: "rich-text";
+  content: string;
 }
 
 // An input control is a form input element
@@ -162,15 +135,12 @@ export interface JSFInputControl extends JSFControlBase {
 // A button control is a form button element
 //
 // JSON schema type required: object
-//
-// To add the essential properties of a button control, the schema
-// associated with the button control must have the following properties:
-// - $buttonText (type: string, jsfType: JSFText): The text of the button
-// - $buttonIcon (type: string, jsfType: JSFImage): The icon of the button
 export interface JSFButtonControl extends JSFControlBase {
   type: "button";
   buttonType: "submit" | "reset" | "button";
-  buttonVariant:
+  text: JSFText;
+  icon: JSFImage;
+  variant:
     | "primary"
     | "secondary"
     | "info"
@@ -178,7 +148,7 @@ export interface JSFButtonControl extends JSFControlBase {
     | "warning"
     | "danger"
     | string;
-  buttonSize: "small" | "medium" | "large" | string;
+  size: "small" | "medium" | "large" | string;
   action: JSFButtonAction;
 }
 
@@ -225,12 +195,7 @@ export type JSFFormProperty<
   formProperties?: JSFObject;
 };
 
-export type JSFSectionSchema = JSONSchemaObject<JSFFormProperty<JSFSection>> & {
-  properties: {
-    $sectionTitle: JSFTextSchema;
-    $sectionDescription: JSFTextSchema;
-  } & Record<string, JSONSchemaObject<JSFFormProperty>>;
-};
+export type JSFSectionSchema = JSONSchemaObject<JSFFormProperty<JSFSection>>;
 
 export type JSFContentSchema =
   | JSFTextSchema
@@ -242,29 +207,13 @@ export type JSFTextSchema = JSONSchemaString<JSFFormProperty> &
   Required<JSFFormProperty<JSFText>>;
 
 export type JSFImageSchema = JSONSchemaObject<JSFFormProperty> &
-  Required<JSFFormProperty<JSFImage>> & {
-    properties: {
-      $src: JSONSchemaString<JSFFormProperty>;
-      $alt: JSONSchemaString<JSFFormProperty>;
-      $caption: JSONSchemaString<JSFFormProperty>;
-      $poster: JSONSchemaString<JSFFormProperty>;
-    } & Record<string, JSONSchemaObject<JSFFormProperty>>;
-  };
+  Required<JSFFormProperty<JSFImage>>;
 
 export type JSFVideoSchema = JSONSchemaObject<JSFFormProperty> &
-  Required<JSFFormProperty<JSFVideo>> & {
-    properties: {
-      $src: JSONSchemaString<JSFFormProperty>;
-      $poster: JSONSchemaString<JSFFormProperty>;
-    } & Record<string, JSONSchemaObject<JSFFormProperty>>;
-  };
+  Required<JSFFormProperty<JSFVideo>>;
 
 export type JSFOembedSchema = JSONSchemaObject<JSFFormProperty> &
-  Required<JSFFormProperty<JSFOembed>> & {
-    properties: {
-      $url: JSONSchemaString<JSFFormProperty>;
-    } & Record<string, JSONSchemaObject<JSFFormProperty>>;
-  };
+  Required<JSFFormProperty<JSFOembed>>;
 
 export type JSFInputControlSchema = Exclude<
   JSONSchema<JSFFormProperty>,
