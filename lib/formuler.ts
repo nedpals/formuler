@@ -1,3 +1,6 @@
+import FormRenderer from "./components/FormRenderer";
+
+export { FormRenderer };
 export * from "./components/FormRenderer";
 export * from "./controller_context";
 export * from "./types/form";
