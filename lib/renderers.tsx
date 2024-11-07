@@ -15,6 +15,7 @@ const defaultFormComponentsByType: Record<
   string: Input,
   boolean: Input,
   number: Input,
+  integer: Input,
   null: () => null,
   array: ({ Outlet, schema, fullProperty, property }) => (
     <Outlet schema={schema} parentProperty={fullProperty} property={property} />
@@ -30,12 +31,7 @@ const defaultFormComponentsByFormType: {
   input: Input,
 };
 
-export default function defaultRenderer({
-  formComponentsByType: _formComponentsByType = {},
-  formComponentsByFormType: _formComponentsByFormType = {},
-  formComponentsByProperty: _formComponentsByProperty = {},
-  ...props
-}: FormControllerProps<JSONSchemaForm> & {
+interface DefaultRendererProps {
   formComponentsByType?: {
     [K in Exclude<
       JSONSchemaForm["type"],
@@ -46,7 +42,18 @@ export default function defaultRenderer({
     [K in JSONSchemaFormElement["type"]]?: FormController;
   };
   formComponentsByProperty?: Record<string, FormController>; // TODO: make it type safe. property refers to either the full property or the property
-}) {
+}
+
+// createRenderer is a factory function that creates a renderer component.
+// You can use this to override the default form components when using it
+// inside the `render` prop of the `FormRenderer` component.
+//
+// eslint-disable-next-line react-refresh/only-export-components
+export function createRenderer({
+  formComponentsByType: _formComponentsByType = {},
+  formComponentsByFormType: _formComponentsByFormType = {},
+  formComponentsByProperty: _formComponentsByProperty = {},
+}: FormControllerProps & DefaultRendererProps): FormController {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const formComponentsByType = useMemo(
     () => mergeWithObject(defaultFormComponentsByType, _formComponentsByType),
@@ -69,6 +76,23 @@ export default function defaultRenderer({
     [_formComponentsByProperty],
   );
 
+  return (props) => (
+    <DefaultRenderer
+      formComponentsByType={formComponentsByType}
+      formComponentsByFormType={formComponentsByFormType}
+      formComponentsByProperty={formComponentsByProperty}
+      {...props}
+    />
+  );
+}
+
+// DefaultRenderer is a component that renders the form based on the schema type.
+export default function DefaultRenderer({
+  formComponentsByType = {},
+  formComponentsByFormType = {},
+  formComponentsByProperty = {},
+  ...props
+}: FormControllerProps & DefaultRendererProps) {
   // Hierarchical order of precedence for component lookup:
   // 1. formComponentsByProperty
   // 2. formComponentsByFormType
@@ -83,22 +107,30 @@ export default function defaultRenderer({
   } else if (
     formComponentsByFormType &&
     props.formProperties &&
-    props.formProperties.type &&
-    formComponentsByFormType[props.formProperties.type]
+    props.formProperties.type
   ) {
-    const FormComponent = formComponentsByFormType[props.formProperties.type];
-    return <FormComponent {...props} />;
+    const formType = props.formProperties.type;
+    if (formComponentsByFormType[formType]) {
+      const FormComponent = formComponentsByFormType[formType];
+      return <FormComponent {...props} />;
+    }
   } else if (formComponentsByType) {
     if (Array.isArray(props.schema.type)) {
       for (const type of props.schema.type) {
-        if (formComponentsByType[type]) {
+        if (
+          formComponentsByType[type] &&
+          typeof formComponentsByType[type] !== "undefined"
+        ) {
           const FormComponent = formComponentsByType[type];
           return <FormComponent {...props} />;
         }
       }
-    } else if (formComponentsByType[props.schema.type]) {
-      const FormComponent = formComponentsByType[props.schema.type];
-      return <FormComponent {...props} />;
+    } else {
+      const schemaType = props.schema.type;
+      if (formComponentsByType[schemaType]) {
+        const FormComponent = formComponentsByType[schemaType];
+        return <FormComponent {...props} />;
+      }
     }
   }
 

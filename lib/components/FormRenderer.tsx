@@ -4,7 +4,7 @@ import {
   useFormControllerContext,
 } from "../controller_context";
 import { FormController, FormRendererProps } from "../types/form";
-import defaultRenderer from "../renderers";
+import DefaultRenderer from "../renderers";
 import { getProperty, setProperty } from "dot-prop";
 import { produce } from "immer";
 import { goToSchemaSection } from "../utils";
@@ -104,7 +104,7 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm>({
   onChange?: (value: unknown) => void; // TODO: define a type for value
   className?: string;
 }) {
-  const _render = render || defaultRenderer;
+  const _render = render || DefaultRenderer;
   const selectedSchema = useMemo(
     () => (section ? goToSchemaSection(schema, section) : schema),
     [schema, section],
