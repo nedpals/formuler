@@ -11,7 +11,8 @@ export default defineConfig({
     copyPublicDir: false,
     lib: {
       entry: resolve(__dirname, "lib/main.ts"),
-      formats: ["es"],
+      name: "formuler",
+      formats: ["umd", "es"],
     },
     rollupOptions: {
       external: ["react", "react/jsx-runtime"],
