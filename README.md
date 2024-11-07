@@ -93,8 +93,10 @@ JSF is a superset of JSON Schema. It allows you to define form properties direct
 Current [solutions](https://jsonforms.io) tend to have a separate schema for the form properties
 which can be cumbersome.
 
-Since JSON Schema specification [allows](https://json-schema.org/draft/2019-09/json-schema-core#rfc.section.6.5)
+JSON Schema specification [allows](https://json-schema.org/draft/2019-09/json-schema-core#rfc.section.6.5)
 adding custom properties, we can use them to define form properties inside the schema instead.
+
+Since this is a superset, they are fully erasable and won't affect the JSON Schema validation.
 
 ```json
 {
@@ -138,11 +140,16 @@ The current goals of Formuler are:
 - To be easy and flexible to use.
 - To be scalable and customizable.
 - To be usable in real-world applications.
+- To be compatible with existing form and UI libraries.
 
 ...and eventually:
 - To be compliant with JSON Schema
 - To be fully type-safe
 - To be fully tested
+
+...and won't be:
+- A full-fledged form library
+- A replacement for existing form libraries
 
 The goals are subject to change as the project progresses and
 based on the needs I will encounter. Feel free to suggest any
