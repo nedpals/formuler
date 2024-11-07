@@ -43,18 +43,18 @@ export type JSONSchemaString<Properties extends object = ExtensionProperties> =
   };
 
 export type JSONSchemaNumber<Properties extends object = ExtensionProperties> =
-  JSONSchemaBase<Properties> & {
-    type: "number" | "integer";
-    multipleOf?: number;
-    maximum?: number;
-    exclusiveMaximum?: number;
-    minimum?: number;
-    exclusiveMinimum?: number;
-    format?: NumberFormat;
-    enum?: number[];
-    const?: number;
-    default?: number;
-  };
+  JSONSchemaBase<Properties> &
+    ({ type: "number" } | { type: "integer" }) & {
+      multipleOf?: number;
+      maximum?: number;
+      exclusiveMaximum?: number;
+      minimum?: number;
+      exclusiveMinimum?: number;
+      format?: NumberFormat;
+      enum?: number[];
+      const?: number;
+      default?: number;
+    };
 
 export type JSONSchemaArray<Properties extends object = ExtensionProperties> =
   JSONSchemaBase<Properties> & {
