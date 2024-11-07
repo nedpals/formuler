@@ -41,21 +41,22 @@ function parseSelector(selector: string) {
   });
 }
 
-export function goToSchemaSection<S extends JSONSchemaForm>(
+export function expandSectionSelector<S extends JSONSchemaForm>(
   schema: S,
   sectionSelector: string,
 ) {
   if (typeof schema !== "object") {
-    return schema;
+    return "";
   }
 
   const parts = parseSelector(sectionSelector);
+  const expandedSelectorParts: (string | number)[] = [];
 
-  // When returned, it will return the last "valid" schema
   let currentSchema: JSONSchemaForm = schema;
 
   for (const part of parts) {
     let newCurrentSchema = currentSchema;
+    const newSelectorParts: (string | number)[] = [];
 
     if (currentSchema.type === "object") {
       if (
@@ -67,6 +68,7 @@ export function goToSchemaSection<S extends JSONSchemaForm>(
       }
 
       newCurrentSchema = currentSchema.properties[part];
+      newSelectorParts.push("properties", part);
     } else if (currentSchema.type === "array") {
       if (
         !currentSchema.items ||
@@ -78,6 +80,7 @@ export function goToSchemaSection<S extends JSONSchemaForm>(
       }
 
       newCurrentSchema = currentSchema.items[part];
+      newSelectorParts.push("items", `[${part}]`);
     } else {
       // Return the current schema if it's not an object or an array
       break;
@@ -93,6 +96,8 @@ export function goToSchemaSection<S extends JSONSchemaForm>(
 
     // Set the new schema as the current schema
     currentSchema = newCurrentSchema;
+    expandedSelectorParts.push(...newSelectorParts);
   }
-  return currentSchema;
+
+  return expandedSelectorParts.join(".");
 }

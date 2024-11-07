@@ -7,7 +7,7 @@ import { FormController, FormRendererProps } from "../types/form";
 import DefaultRenderer from "../renderers";
 import { getProperty, setProperty } from "dot-prop";
 import { produce } from "immer";
-import { goToSchemaSection } from "../utils";
+import { expandSectionSelector, goToSchemaSection } from "../utils";
 import { useMemo } from "react";
 
 function FormRendererChild<
@@ -105,9 +105,19 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
   className?: string;
 }) {
   const _render = render || DefaultRenderer;
-  const selectedSchema = useMemo(
-    () => (section ? goToSchemaSection(schema, section) : schema),
+  const expandedSectionSelector = useMemo(
+    () => (section ? expandSectionSelector(schema, section) : undefined),
     [schema, section],
+  );
+  const selectedSchema = useMemo(
+    () =>
+      expandedSectionSelector
+        ? getProperty(
+            schema,
+            expandSectionSelector(schema, expandedSectionSelector),
+          )!
+        : schema,
+    [schema, expandedSectionSelector],
   );
 
   return (
