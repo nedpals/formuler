@@ -1,5 +1,11 @@
 import { FC } from "react";
-import { JSONSchemaForm } from "./json_schema_form";
+import {
+  JSFCustomControlSchema,
+  JSFCustomSchema,
+  JSFType,
+  JSFTypeToJSONSchemaFormType,
+  JSONSchemaForm,
+} from "./json_schema_form";
 
 // ComponentRenderPreferences is a type that defines the preferences for rendering components
 export interface ComponentRenderPreferences {
@@ -42,3 +48,15 @@ export interface FormControllerProps<
   formProperties: S["formProperties"];
   componentPreference: ComponentRenderPreferences;
 }
+
+// FormTypeController is a component that provides a way to control a form element based on form type
+export type FormTypeController<K extends JSFType> = FormController<
+  JSONSchemaForm,
+  Required<JSFTypeToJSONSchemaFormType<K>>
+>;
+
+export type FormTypeCustomController<CType extends string = string> =
+  FormController<JSONSchemaForm, Required<JSFCustomSchema<CType>>>;
+
+export type FormTypeCustomControlController<CCType extends string = string> =
+  FormController<JSONSchemaForm, Required<JSFCustomControlSchema<CCType>>>;

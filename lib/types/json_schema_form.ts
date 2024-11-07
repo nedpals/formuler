@@ -179,17 +179,18 @@ export type JSFButtonAction =
 // A custom control is a custom form input element
 //
 // JSON schema type required: any
-export interface JSFCustomControl extends JSFControlBase {
+export interface JSFCustomControl<CustomControlType extends string = string>
+  extends JSFControlBase {
   type: "custom-control";
-  controlType: string;
+  controlType: CustomControlType;
 }
 
 // A custom object is a custom form element that can be displayed in a form
 //
 // JSON schema type required: any
-export interface JSFCustom extends JSFBase {
+export interface JSFCustom<CustomType extends string = string> extends JSFBase {
   type: "custom";
-  customContentType: string;
+  customContentType: CustomType;
   properties: Record<string, unknown>;
 }
 
@@ -204,6 +205,9 @@ export type JSFFormProperty<
 export type JSFSectionSchema = JSONSchemaObject<JSFFormProperty> &
   Required<JSFFormProperty<JSFSection>>;
 
+export type JSFLayoutSchema = JSONSchemaObject<JSFFormProperty> &
+  Required<JSFFormProperty<JSFLayout>>;
+
 export type JSFContentSchema =
   | JSFTextSchema
   | JSFImageSchema
@@ -211,7 +215,7 @@ export type JSFContentSchema =
   | JSFOembedSchema;
 
 export type JSFTextSchema = JSONSchemaString<JSFFormProperty> &
-  Required<JSFFormProperty<JSFText>>;
+  Required<JSFFormProperty<JSFPlainText> | JSFFormProperty<JSFRichText>>;
 
 export type JSFImageSchema = JSONSchemaObject<JSFFormProperty> &
   Required<JSFFormProperty<JSFImage>>;
@@ -231,13 +235,18 @@ export type JSFInputControlSchema = Exclude<
 export type JSFButtonControlSchema = JSONSchemaObject &
   Required<JSFFormProperty<JSFButtonControl>>;
 
-export type JSFCustomControlSchema = JSONSchemaObject<JSFFormProperty> &
-  Required<JSFFormProperty<JSFCustomControl>>;
+export type JSFCustomControlSchema<CustomControlType extends string = string> =
+  JSONSchemaObject<JSFFormProperty> &
+    Required<JSFFormProperty<JSFCustomControl<CustomControlType>>>;
 
 export type JSFControlSchema =
   | JSFInputControlSchema
   | JSFButtonControlSchema
   | JSFCustomControlSchema;
+
+export type JSFCustomSchema<CustomType extends string = string> =
+  JSONSchemaObject<JSFFormProperty> &
+    Required<JSFFormProperty<JSFCustom<CustomType>>>;
 
 // JSONSchemaForm is an extension of JSONSchema that allows for
 // the definition of form elements.
@@ -249,7 +258,9 @@ export type JSFControlSchema =
 // "formProperties" that contains the form element properties.
 export type JSONSchemaForm =
   | JSFSectionSchema
+  | JSFLayoutSchema
   | JSFContentSchema
+  | JSFCustomSchema
   | JSFControlSchema
   | Exclude<JSONSchema<JSFFormProperty>, boolean>;
 

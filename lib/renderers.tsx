@@ -1,13 +1,26 @@
-import { FormController, FormControllerProps } from "./types/form";
 import {
-  JSFType,
-  JSFTypeToJSONSchemaFormType,
-  JSONSchemaForm,
-} from "./types/json_schema_form";
-import Input from "./components/default_form_components/Input";
+  FormController,
+  FormControllerProps,
+  FormTypeController,
+  FormTypeCustomControlController,
+  FormTypeCustomController,
+} from "./types/form";
+import { JSFType, JSONSchemaForm } from "./types/json_schema_form";
 import { JSONSchema, JSONSchemaMultiTypeKeys } from "./types/json_schema";
 import { mergeWithObject } from "./utils";
 import { useMemo } from "react";
+import {
+  ArrayRender,
+  Image as _Image,
+  Input,
+  ObjectRender,
+  RichText,
+  Section,
+  Text,
+  Video,
+  Layout,
+  Oembed,
+} from "./components";
 
 export type FormComponentsByTypeMap = {
   [K in Exclude<
@@ -22,55 +35,9 @@ const defaultFormComponentsByType: FormComponentsByTypeMap = {
   number: Input,
   integer: Input,
   null: () => null,
-  array: ({ Outlet, schema, fullProperty }) => {
-    if (!schema.items || !Array.isArray(schema.items)) {
-      return null;
-    }
-
-    return (
-      <>
-        {schema.items
-          .filter((it) => typeof it === "object")
-          .map((item, index) => (
-            <Outlet
-              key={`property_${fullProperty}[${index}]`}
-              schema={item}
-              parentProperty={fullProperty}
-              property={`[${index}]`}
-            />
-          ))}
-      </>
-    );
-  },
-  object: ({ schema, Outlet, fullProperty }) => {
-    const properties = schema.properties;
-    if (typeof properties !== "object") {
-      return <></>;
-    }
-
-    return (
-      <>
-        {Object.keys(properties)
-          .filter((k) => typeof properties[k] === "object")
-          .map((key) => (
-            <Outlet
-              key={`property_${fullProperty}.${key}`}
-              schema={properties[key] as JSONSchemaForm}
-              parentProperty={fullProperty}
-              property={key}
-              preferPropertyComponent
-              preferSchemaTypeComponent
-            />
-          ))}
-      </>
-    );
-  },
+  array: ArrayRender,
+  object: ObjectRender,
 };
-
-export type FormTypeController<K extends JSFType> = FormController<
-  JSONSchemaForm,
-  Required<JSFTypeToJSONSchemaFormType<K>>
->;
 
 export type FormComponentsByFormTypeMap = {
   [K in JSFType]?: FormTypeController<K>;
@@ -78,12 +45,25 @@ export type FormComponentsByFormTypeMap = {
 
 const defaultFormComponentsByFormType: FormComponentsByFormTypeMap = {
   input: Input,
+  section: Section,
+  "rich-text": RichText,
+  text: Text,
+  image: _Image,
+  video: Video,
+  layout: Layout,
+  oembed: Oembed,
 };
 
 export interface DefaultRendererProps {
   formComponentsByType?: FormComponentsByTypeMap;
   formComponentsByFormType?: FormComponentsByFormTypeMap;
   formComponentsByProperty?: Record<string, FormController>; // TODO: make it type safe. property refers to either the full property or the property
+  formComponentsByCustomType?: Record<string, FormTypeCustomController>;
+  formComponentsByCustomControlType?: Record<
+    string,
+    FormTypeCustomControlController
+  >;
+  formComponentsByLayoutName?: Record<string, FormTypeController<"layout">>;
 }
 
 // createRenderer is a factory function that creates a renderer component.
@@ -99,6 +79,11 @@ export function createRenderer(
       formComponentsByType={renderProps?.formComponentsByType ?? {}}
       formComponentsByFormType={renderProps?.formComponentsByFormType ?? {}}
       formComponentsByProperty={renderProps?.formComponentsByProperty ?? {}}
+      formComponentsByCustomType={renderProps?.formComponentsByCustomType ?? {}}
+      formComponentsByCustomControlType={
+        renderProps?.formComponentsByCustomControlType ?? {}
+      }
+      formComponentsByLayoutName={renderProps?.formComponentsByLayoutName ?? {}}
       {...props}
     />
   );
@@ -109,6 +94,9 @@ export default function DefaultRenderer({
   formComponentsByType: _formComponentsByType = {},
   formComponentsByFormType: _formComponentsByFormType = {},
   formComponentsByProperty: _formComponentsByProperty = {},
+  formComponentsByCustomType: _formComponentsByCustomType = {},
+  formComponentsByCustomControlType: _formComponentsByCustomControlType = {},
+  formComponentsByLayoutName: _formComponentsByLayoutName = {},
   ...props
 }: FormControllerProps & DefaultRendererProps) {
   const {
@@ -136,6 +124,21 @@ export default function DefaultRenderer({
     [_formComponentsByProperty],
   );
 
+  const formComponentsByCustomType = useMemo(
+    () => mergeWithObject({}, _formComponentsByCustomType),
+    [_formComponentsByCustomType],
+  );
+
+  const formComponentsByCustomControlType = useMemo(
+    () => mergeWithObject({}, _formComponentsByCustomControlType),
+    [_formComponentsByCustomControlType],
+  );
+
+  const formComponentsByLayoutName = useMemo(
+    () => mergeWithObject({}, _formComponentsByLayoutName),
+    [_formComponentsByLayoutName],
+  );
+
   // Hierarchical order of precedence for component lookup:
   // 1. formComponentsByProperty
   // 2. formComponentsByFormType
@@ -155,7 +158,33 @@ export default function DefaultRenderer({
     props.formProperties.type
   ) {
     const formType = props.formProperties.type;
-    if (formComponentsByFormType[formType]) {
+
+    if (
+      formType === "layout" &&
+      props.formProperties.name &&
+      formComponentsByLayoutName[props.formProperties.name]
+    ) {
+      const FormComponent = formComponentsByLayoutName[
+        props.formProperties.name
+      ] as FormController;
+      return <FormComponent {...props} />;
+    } else if (formType === "custom") {
+      const customType = props.formProperties.customContentType;
+      if (formComponentsByCustomType[customType]) {
+        const FormComponent = formComponentsByCustomType[
+          customType
+        ] as FormController;
+        return <FormComponent {...props} />;
+      }
+    } else if (formType === "custom-control") {
+      const controlType = props.formProperties.controlType;
+      if (formComponentsByCustomControlType[controlType]) {
+        const FormComponent = formComponentsByCustomControlType[
+          controlType
+        ] as FormController;
+        return <FormComponent {...props} />;
+      }
+    } else if (formComponentsByFormType[formType]) {
       const FormComponent = formComponentsByFormType[
         formType
       ] as FormController;

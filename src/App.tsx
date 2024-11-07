@@ -158,22 +158,6 @@ function App() {
                   <Input {...props} />
                 </div>
               ),
-              section: (props) => {
-                const properties = props.schema.properties;
-                if (typeof properties !== "object") {
-                  return <></>;
-                }
-
-                return (
-                  <div>
-                    <h2>{props.formProperties.title.content}</h2>
-                    <props.Outlet
-                      preferPropertyComponent
-                      preferSchemaTypeComponent
-                    />
-                  </div>
-                );
-              },
             },
           })}
           value={data}

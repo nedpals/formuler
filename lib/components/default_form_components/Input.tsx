@@ -4,7 +4,13 @@ import { FormControllerProps } from "../../types/form";
 export default function Input<
   RS extends JSONSchemaForm = JSONSchemaForm,
   S extends JSONSchemaForm = JSONSchemaForm,
->({ value, onChange, formProperties, schema }: FormControllerProps<RS, S>) {
+>({
+  value,
+  onChange,
+  formProperties,
+  schema,
+  property,
+}: FormControllerProps<RS, S>) {
   const inputType =
     formProperties?.type === "input" ? formProperties.inputType : "text";
 
@@ -32,6 +38,7 @@ export default function Input<
           ? formProperties.placeholder
           : undefined
       }
+      className={`input input-type-${inputType} ${property.length > 0 ? "property-" + property : ""} input-${schema.type}`}
       onChange={(ev) => onChange(ev.target.value)}
     />
   );
