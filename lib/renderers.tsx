@@ -50,32 +50,10 @@ interface DefaultRendererProps {
 //
 // eslint-disable-next-line react-refresh/only-export-components
 export function createRenderer({
-  formComponentsByType: _formComponentsByType = {},
-  formComponentsByFormType: _formComponentsByFormType = {},
-  formComponentsByProperty: _formComponentsByProperty = {},
+  formComponentsByType = {},
+  formComponentsByFormType = {},
+  formComponentsByProperty = {},
 }: FormControllerProps & DefaultRendererProps): FormController {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const formComponentsByType = useMemo(
-    () => mergeWithObject(defaultFormComponentsByType, _formComponentsByType),
-    [_formComponentsByType],
-  );
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const formComponentsByFormType = useMemo(
-    () =>
-      mergeWithObject(
-        defaultFormComponentsByFormType,
-        _formComponentsByFormType,
-      ),
-    [_formComponentsByFormType],
-  );
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const formComponentsByProperty = useMemo(
-    () => mergeWithObject({}, _formComponentsByProperty),
-    [_formComponentsByProperty],
-  );
-
   return (props) => (
     <DefaultRenderer
       formComponentsByType={formComponentsByType}
@@ -88,11 +66,30 @@ export function createRenderer({
 
 // DefaultRenderer is a component that renders the form based on the schema type.
 export default function DefaultRenderer({
-  formComponentsByType = {},
-  formComponentsByFormType = {},
-  formComponentsByProperty = {},
+  formComponentsByType: _formComponentsByType = {},
+  formComponentsByFormType: _formComponentsByFormType = {},
+  formComponentsByProperty: _formComponentsByProperty = {},
   ...props
 }: FormControllerProps & DefaultRendererProps) {
+  const formComponentsByType = useMemo(
+    () => mergeWithObject(defaultFormComponentsByType, _formComponentsByType),
+    [_formComponentsByType],
+  );
+
+  const formComponentsByFormType = useMemo(
+    () =>
+      mergeWithObject(
+        defaultFormComponentsByFormType,
+        _formComponentsByFormType,
+      ),
+    [_formComponentsByFormType],
+  );
+
+  const formComponentsByProperty = useMemo(
+    () => mergeWithObject({}, _formComponentsByProperty),
+    [_formComponentsByProperty],
+  );
+
   // Hierarchical order of precedence for component lookup:
   // 1. formComponentsByProperty
   // 2. formComponentsByFormType
