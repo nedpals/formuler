@@ -5,6 +5,12 @@ export function mergeWithObject<V>(
   obj1: Record<string, V>,
   obj2: Record<string, V>,
 ) {
+  if (Object.keys(obj2).length === 0) {
+    return obj1;
+  } else if (Object.keys(obj1).length === 0) {
+    return obj2;
+  }
+
   return produce(obj1, (draft) => {
     for (const key in obj2) {
       if (!Object.prototype.hasOwnProperty.call(draft, key)) {
