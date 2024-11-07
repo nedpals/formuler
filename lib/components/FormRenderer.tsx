@@ -113,7 +113,7 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm>({
   return (
     <FormControllerContext.Provider
       value={{
-        rootSchema: schema,
+        rootSchema: selectedSchema,
         render: _render,
         getValue<T>(key: string) {
           if (typeof value !== "object") {
