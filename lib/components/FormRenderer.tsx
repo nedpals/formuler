@@ -7,7 +7,7 @@ import { FormController, FormRendererProps } from "../types/form";
 import DefaultRenderer from "../renderers";
 import { getProperty, setProperty } from "dot-prop";
 import { produce } from "immer";
-import { expandSectionSelector, goToSchemaSection } from "../utils";
+import { expandSectionSelector } from "../utils";
 import { useMemo } from "react";
 
 function FormRendererChild<
@@ -167,7 +167,13 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
           }
 
           onChange?.(
-            produce(value, (draft) => setProperty(draft, key, newValue)),
+            produce(value, (draft) => {
+              if (section) {
+                return setProperty(draft, section + "." + key, newValue);
+              }
+
+              return setProperty(draft, key, newValue);
+            }),
           );
         },
       }}
