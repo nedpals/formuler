@@ -33,7 +33,7 @@ export default function Input({
           ? formProperties.placeholder
           : undefined
       }
-      onChange={onChange}
+      onChange={(ev) => onChange(ev.target.value)}
     />
   );
 }

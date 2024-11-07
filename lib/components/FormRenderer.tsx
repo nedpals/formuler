@@ -90,18 +90,18 @@ function FormRendererChild<
   }
 }
 
-export default function FormRenderer<SchemaType extends JSONSchemaForm>({
+export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
   className,
   render,
   section,
   schema,
   value,
   onChange,
-}: FormRendererProps<SchemaType> & {
+}: Omit<FormRendererProps<SchemaType>, "property" | "parentProperty"> & {
   section?: string;
   render?: FormController;
-  value?: unknown; // TODO: define a type for value
-  onChange?: (value: unknown) => void; // TODO: define a type for value
+  value?: Value; // TODO: define a type for value
+  onChange?: (value: Value) => void; // TODO: define a type for value
   className?: string;
 }) {
   const _render = render || DefaultRenderer;
@@ -126,31 +126,38 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm>({
           return getProperty(value, key);
         },
         setValue(key, newValue) {
-          if (!onChange || typeof value !== typeof newValue) {
-            if (typeof value !== typeof newValue) {
-              console.error("New value has different type than the old value", {
-                value,
-                newValue,
-              });
-            }
+          if (typeof value === "undefined") {
+            console.error("Value is undefined");
+            return;
+          } else if (!value) {
+            console.error("Value is falsy", { value });
             return;
           }
 
-          if (typeof newValue !== "object") {
+          const prevValue = key === "*" ? value : getProperty(value, key);
+          if (typeof prevValue !== typeof newValue) {
+            console.error("New value has different type than the old value", {
+              value,
+              newValue,
+            });
+            return;
+          } else if (typeof newValue === "undefined") {
+            console.error("Value is undefined");
+            return;
+          } else if (prevValue === value && typeof prevValue !== "object") {
             if (key !== "*") {
               console.error("Invalid key", key);
               return;
             }
-            onChange(newValue);
+
+            onChange?.(newValue as Value);
           } else if (key === "*") {
             console.error("Rewriting the whole value is not allowed");
             return;
           }
 
-          onChange(
-            produce(value as object, (draft) =>
-              setProperty(draft, key, newValue),
-            ),
+          onChange?.(
+            produce(value, (draft) => setProperty(draft, key, newValue)),
           );
         },
       }}
