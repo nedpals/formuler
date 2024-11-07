@@ -1,18 +1,26 @@
 # Formuler
 
-A headless dynamic form renderer library for React using a superset of JSON Schema.
-Perfect for remote web forms. Still in development.
+A dynamic form renderer library for React using a superset of JSON Schema.
+Perfect for remote web forms. Still in Alpha.
 
-## Proposed Design
-### Basic Usage
-It all starts with defining a schema and passing it to the `FormRenderer` component.
+## Features
+- **Dynamic Form Rendering**: Render forms based on a superset of JSON Schema. Fetch the schema from the server or define it locally.
+- **Custom Components**: Style our default UI components or use your favorite UI libraries directly.
+- **Compatible with Existing Libraries**: Use it with your favorite form libraries like Formik, react-hook-form, or react-jsonschema-form.
+- **Type-Safe**: Build type-safe forms easily with TypeScript. (WIP)
 
+## Installation
+```bash
+npm install formuler
+```
+
+## Quickstart
 ```jsx
 import React from 'react';
 import { FormRenderer } from 'formuler';
 
 export default function App() {
-  // Fetch the schema from the server or define it locally
+  // Provide your schema. Fetch the schema from the server or define it locally
   const schema = {
     type: 'object',
     properties: {
@@ -37,12 +45,14 @@ export default function App() {
     },
   };
 
+  // Provide a value and a function to update the value.
+  // You may use your favorite state management or form library.
   const [value, setValue] = React.useState({
     name: 'Bob',
     age: 18,
   });
 
-  // It will render a form with two input fields
+  // Render the form using FormRenderer
   return (
     <FormRenderer
       schema={schema}
@@ -53,8 +63,39 @@ export default function App() {
 }
 ```
 
-### Custom Components
+## Usage
+### Extend/Override Default Components
+Formuler provides default components for rendering forms. You can extend or override them to fit your needs through the `createRenderer` function.
+You may override at the type level, form type level, property-level, and layout-level.
+
+```jsx
+<FormRenderer
+  schema={schema}
+  render={createRenderer({
+    formComponentsByType: {
+      string: ({ formProperties }) => <p className="text-xl">{formProperties.content}</p>,
+    },
+    formComponentsByFormType: {
+      input: (props) => (
+        <div>
+          <p style={{ marginBottom: 0 }}>
+            {props.formProperties.label}
+          </p>
+          <Input {...props} />
+        </div>
+      ),
+    },
+  })}
+  value={data}
+  onChange={(data) => {
+    setData(data);
+  }}
+/>
+```
+
+### Using Components from UI Libraries
 No need for separate packages for your favorite UI libraries. You can use them directly with Formuler.
+Simply replace the render function with your favorite UI library components.
 
 ```jsx
 // ShadCN + react-hook-form example
@@ -88,15 +129,77 @@ function default App() {
 }
 ```
 
-### JSON Schema Form (JSF)
-JSF is a superset of JSON Schema. It allows you to define form properties directly in the schema.
-Current [solutions](https://jsonforms.io) tend to have a separate schema for the form properties
-which can be cumbersome.
+### Wizard Form through the `section` prop
 
-JSON Schema specification [allows](https://json-schema.org/draft/2019-09/json-schema-core#rfc.section.6.5)
-adding custom properties, we can use them to define form properties inside the schema instead.
+You can create a wizard-like form experience through the `section` prop. This requires the schema you want to pick
+to be an `object` schema with `section` form type.
 
-Since this is a superset, they are fully erasable and won't affect the JSON Schema validation.
+In this example, we have two sections: `personal_information` and `contact_information`.
+
+```jsonc
+{
+  "type": "object",
+  "properties": {
+    "personal_information": {
+      "type": "object",
+      "formProperties": {
+        "type": "section",
+        "title": {
+          "type": "text",
+          "content": "Personal Information"
+        },
+        "description": {
+          "type": "text",
+          "content": "Please fill out the form below."
+        },
+      },
+      "properties": {
+        // ...
+      }
+    },
+    "contact_information": {
+      "type": "object",
+      "formProperties": {
+        "type": "section",
+        "title": {
+          "type": "text",
+          "content": "Contact Information"
+        },
+        "description": {
+          "type": "text",
+          "content": "Please fill out the form below."
+        },
+      },
+      "properties": {
+        // ...
+      }
+    }
+  }
+}
+```
+
+We want to have a two-step form with each step rendering a section. We can achieve this by passing
+the `section` prop to the `FormRenderer` component.
+
+```jsx
+// Step 1 page
+<FormRenderer
+  schema={schema}
+  value={value}
+  onChange={setValue}
+  section="personal_information" />
+
+// Step 2 page
+<FormRenderer
+  schema={schema}
+  value={value}
+  onChange={setValue}
+  section="contact_information" />
+```
+
+## JSON Schema Form (JSF)
+Formuler extends JSON Schema with custom properties to define form behavior
+within the schema itself, making it both flexible and erasable for validation purposes.
 
 ```json
 {
@@ -134,6 +237,22 @@ Since this is a superset, they are fully erasable and won't affect the JSON Sche
   }
 }
 ```
+
+### Elements
+JSF is composed of multiple elements that can be used to define the form behavior:
+- `section` - A section element that groups properties together.
+- `layout` - A layout element that defines the layout of the form.
+- `content` - A content element that displays non-editable content.
+  - `text` - A text content element.
+  - `rich-text` - A rich text content element.
+  - `image` - An image content element.
+  - `video` - A video content element.
+  - `oembed` - An oembed content element.
+- `controls` - A controls element that defines the form controls.
+  - `button` - A button control element.
+  - `input` - An input control element.
+
+For full documentation, see [types/json_schema_form.ts](lib/types/json_schema_form.ts).
 
 ## Goals
 The current goals of Formuler are:

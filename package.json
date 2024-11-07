@@ -1,7 +1,6 @@
 {
   "name": "formuler",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "main": "./dist/formuler.umd.cjs",
   "module": "./dist/formuler.js",
