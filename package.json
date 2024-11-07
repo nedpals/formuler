@@ -3,7 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "dist/formuler.js",
+  "main": "./dist/formuler.umd.cjs",
+  "module": "./dist/formuler.js",
+  "exports": {
+    ".": {
+      "import": "./dist/formuler.js",
+      "require": "./dist/formuler.umd.cjs"
+    }
+  },
   "types": "dist/formuler.d.ts",
   "files": [
     "dist"
