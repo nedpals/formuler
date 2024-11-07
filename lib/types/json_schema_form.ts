@@ -32,14 +32,12 @@ export interface JSFBase {
 //      "type": "string",
 //      "formProperties": {
 //        "type": "text",
-//        "text": "Section Title"
 //      }
 //    },
 //    "$sectionDescription": {
 //      "type": "string",
 //      "formProperties": {
 //        "type": "text",
-//        "text": "Section Description"
 //      }
 //    },
 //    ... rest of the properties
@@ -117,9 +115,6 @@ export type JSFText = JSFPlainText | JSFRichText;
 // Use JSFRichText for rich text elements that require special formatting.
 //
 // JSON schema type required: string
-// To add plain text to a form, the schema associated with the plain text
-// must have the following properties:
-// - $content (type: string): The plain text content
 export interface JSFPlainText extends JSFBase {
   type: "text";
 }
@@ -128,9 +123,6 @@ export interface JSFPlainText extends JSFBase {
 // It is used for rich text elements that require special formatting.
 //
 // JSON schema type required: string
-// To add rich text to a form, the schema associated with the rich text
-// must have the following properties:
-// - $content (type: string): The rich text content
 export interface JSFRichText extends JSFBase {
   type: "rich-text";
 }
