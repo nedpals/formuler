@@ -3,19 +3,58 @@ import {
   FormControllerContext,
   useFormControllerContext,
 } from "../controller_context";
-import { FormController, FormRendererProps } from "../types/form";
+import {
+  FormController,
+  FormRendererProps,
+  OutletRendererProps,
+} from "../types/form";
 import DefaultRenderer from "../renderers";
 import { getProperty, setProperty } from "dot-prop";
 import { produce } from "immer";
 import { expandSectionSelector } from "../utils";
-import { useCallback, useMemo } from "react";
+import { FC, useCallback, useMemo } from "react";
 
 function FormRendererChild<
   RootSchemaType extends JSONSchemaForm,
   SchemaType extends JSONSchemaForm,
->({ schema, parentProperty, property }: FormRendererProps<SchemaType>) {
-  const { rootSchema, render, getValue, setValue } =
-    useFormControllerContext<RootSchemaType>();
+>({
+  schema,
+  parentProperty,
+  property,
+  preferFormTypeComponent = true,
+  preferPropertyComponent = true,
+  preferSchemaTypeComponent = true,
+}: FormRendererProps<SchemaType>) {
+  const {
+    rootSchema,
+    render: RenderComponent,
+    getValue,
+    setValue,
+  } = useFormControllerContext<RootSchemaType, SchemaType>();
+
+  const _FormRendererChild = useCallback<FC<OutletRendererProps>>(
+    ({
+      parentProperty: _parentProperty,
+      property: _property,
+      schema: _schema,
+      preferFormTypeComponent,
+      preferPropertyComponent,
+      preferSchemaTypeComponent,
+    }) => {
+      return (
+        <FormRendererChild
+          schema={_schema ?? schema}
+          parentProperty={_parentProperty ?? parentProperty}
+          property={_property ?? property}
+          // False by default to avoid infinite recursion. You must explicitly set it to true.
+          preferFormTypeComponent={preferFormTypeComponent ?? false}
+          preferPropertyComponent={preferPropertyComponent ?? false}
+          preferSchemaTypeComponent={preferSchemaTypeComponent ?? false}
+        />
+      );
+    },
+    [schema, parentProperty, property],
+  );
 
   if (typeof schema !== "object" || !("type" in schema)) {
     return null;
@@ -28,66 +67,25 @@ function FormRendererChild<
         : parentProperty + "." + property
       : property;
 
-  switch (schema.type) {
-    case "object": {
-      const properties = schema.properties;
-      if (typeof properties !== "object") {
-        return null;
-      }
-
-      return (
-        <>
-          {Object.keys(properties)
-            .filter((k) => typeof properties[k] === "object")
-            .map((key) => (
-              <FormRendererChild
-                key={`property_${fullProperty}.${key}`}
-                schema={properties[key] as JSONSchemaForm}
-                parentProperty={fullProperty}
-                property={key}
-              />
-            ))}
-        </>
-      );
-    }
-    case "array": {
-      if (!schema.items || !Array.isArray(schema.items)) {
-        return null;
-      }
-
-      return (
-        <>
-          {schema.items
-            .filter((it) => typeof it === "object")
-            .map((item, index) => (
-              <FormRendererChild
-                key={`property_${fullProperty}[${index}]`}
-                schema={item}
-                parentProperty={fullProperty}
-                property={`[${index}]`}
-              />
-            ))}
-        </>
-      );
-    }
-    default: {
-      const RenderComponent = render;
-      return (
-        <RenderComponent
-          rootSchema={rootSchema}
-          schema={schema}
-          Outlet={FormRendererChild}
-          fullProperty={fullProperty}
-          property={property}
-          getValue={getValue}
-          setValue={setValue}
-          value={getValue(fullProperty)}
-          onChange={(newValue) => setValue(fullProperty, newValue)}
-          formProperties={schema.formProperties}
-        />
-      );
-    }
-  }
+  return (
+    <RenderComponent
+      rootSchema={rootSchema}
+      schema={schema}
+      Outlet={_FormRendererChild}
+      fullProperty={fullProperty}
+      property={property}
+      getValue={getValue}
+      setValue={setValue}
+      value={getValue(fullProperty)}
+      onChange={(newValue) => setValue(fullProperty, newValue)}
+      formProperties={schema.formProperties}
+      componentPreference={{
+        preferFormTypeComponent,
+        preferPropertyComponent,
+        preferSchemaTypeComponent,
+      }}
+    />
+  );
 }
 
 export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
@@ -193,6 +191,9 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
           schema={selectedSchema}
           property=""
           parentProperty=""
+          preferPropertyComponent
+          preferFormTypeComponent
+          preferSchemaTypeComponent
         />
       </div>
     </FormControllerContext.Provider>

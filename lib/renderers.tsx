@@ -13,7 +13,7 @@ export type FormComponentsByTypeMap = {
   [K in Exclude<
     JSONSchemaForm["type"],
     JSONSchemaMultiTypeKeys
-  >]?: FormController<Extract<JSONSchema, { type: K }>>;
+  >]?: FormController<JSONSchemaForm, Extract<JSONSchema, { type: K }>>;
 };
 
 const defaultFormComponentsByType: FormComponentsByTypeMap = {
@@ -22,12 +22,49 @@ const defaultFormComponentsByType: FormComponentsByTypeMap = {
   number: Input,
   integer: Input,
   null: () => null,
-  array: ({ Outlet, schema, fullProperty, property }) => (
-    <Outlet schema={schema} parentProperty={fullProperty} property={property} />
-  ),
-  object: ({ Outlet, schema, fullProperty, property }) => (
-    <Outlet schema={schema} parentProperty={fullProperty} property={property} />
-  ),
+  array: ({ Outlet, schema, fullProperty }) => {
+    if (!schema.items || !Array.isArray(schema.items)) {
+      return null;
+    }
+
+    return (
+      <>
+        {schema.items
+          .filter((it) => typeof it === "object")
+          .map((item, index) => (
+            <Outlet
+              key={`property_${fullProperty}[${index}]`}
+              schema={item}
+              parentProperty={fullProperty}
+              property={`[${index}]`}
+            />
+          ))}
+      </>
+    );
+  },
+  object: ({ schema, Outlet, fullProperty }) => {
+    const properties = schema.properties;
+    if (typeof properties !== "object") {
+      return <></>;
+    }
+
+    return (
+      <>
+        {Object.keys(properties)
+          .filter((k) => typeof properties[k] === "object")
+          .map((key) => (
+            <Outlet
+              key={`property_${fullProperty}.${key}`}
+              schema={properties[key] as JSONSchemaForm}
+              parentProperty={fullProperty}
+              property={key}
+              preferPropertyComponent
+              preferSchemaTypeComponent
+            />
+          ))}
+      </>
+    );
+  },
 };
 
 export type FormTypeController<K extends JSFType> = FormController<
@@ -74,6 +111,12 @@ export default function DefaultRenderer({
   formComponentsByProperty: _formComponentsByProperty = {},
   ...props
 }: FormControllerProps & DefaultRendererProps) {
+  const {
+    preferFormTypeComponent,
+    preferPropertyComponent,
+    preferSchemaTypeComponent,
+  } = props.componentPreference;
+
   const formComponentsByType = useMemo(
     () => mergeWithObject(defaultFormComponentsByType, _formComponentsByType),
     [_formComponentsByType],
@@ -98,6 +141,7 @@ export default function DefaultRenderer({
   // 2. formComponentsByFormType
   // 3. formComponentsByType
   if (
+    preferPropertyComponent &&
     formComponentsByProperty &&
     props.property &&
     formComponentsByProperty[props.property]
@@ -105,6 +149,7 @@ export default function DefaultRenderer({
     const FormComponent = formComponentsByProperty[props.property];
     return <FormComponent {...props} />;
   } else if (
+    preferFormTypeComponent &&
     formComponentsByFormType &&
     props.formProperties &&
     props.formProperties.type
@@ -116,7 +161,7 @@ export default function DefaultRenderer({
       ] as FormController;
       return <FormComponent {...props} />;
     }
-  } else if (formComponentsByType) {
+  } else if (preferSchemaTypeComponent) {
     const typesList = Array.isArray(props.schema.type)
       ? props.schema.type
       : [props.schema.type];

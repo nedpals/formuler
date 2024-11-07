@@ -7,9 +7,10 @@ import { FormController } from "./types/form";
 // prop drilling and makes it easier to interact with the form.
 export interface FormControllerContextValue<
   RS extends JSONSchemaForm = JSONSchemaForm,
+  S extends JSONSchemaForm = JSONSchemaForm,
 > {
   rootSchema: RS;
-  render: FormController<RS, JSONSchemaForm>;
+  render: FormController<RS, S>;
   setValue: (key: string, value: unknown) => void;
   getValue: <T = unknown>(key: string) => T | undefined;
 }
@@ -22,9 +23,10 @@ export const FormControllerContext = createContext<
 // eslint-disable-next-line react-refresh/only-export-components
 export const useFormControllerContext = <
   RS extends JSONSchemaForm = JSONSchemaForm,
+  S extends JSONSchemaForm = JSONSchemaForm,
 >() =>
   useContext(
-    FormControllerContext as React.Context<FormControllerContextValue<RS>>,
+    FormControllerContext as React.Context<FormControllerContextValue<RS, S>>,
   );
 
 export function FormControllerProvider<
