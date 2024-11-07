@@ -8,7 +8,7 @@ import DefaultRenderer from "../renderers";
 import { getProperty, setProperty } from "dot-prop";
 import { produce } from "immer";
 import { expandSectionSelector } from "../utils";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 function FormRendererChild<
   RootSchemaType extends JSONSchemaForm,
@@ -105,20 +105,29 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
   className?: string;
 }) {
   const _render = render || DefaultRenderer;
+
   const expandedSectionSelector = useMemo(
     () => (section ? expandSectionSelector(schema, section) : undefined),
     [schema, section],
   );
+
   const selectedSchema = useMemo(
     () =>
       expandedSectionSelector
-        ? getProperty(
-            schema,
-            expandSectionSelector(schema, expandedSectionSelector),
-          )!
+        ? getProperty(schema, expandedSectionSelector)!
         : schema,
     [schema, expandedSectionSelector],
   );
+
+  const selectedValue = useMemo(
+    () => (section ? getProperty(value, section)! : value),
+    [value, section],
+  );
+
+  useEffect(() => {
+    if (!section) return;
+    console.log("section", section, selectedValue, selectedSchema);
+  }, [selectedValue, selectedSchema, section]);
 
   return (
     <FormControllerContext.Provider
@@ -126,25 +135,29 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
         rootSchema: selectedSchema,
         render: _render,
         getValue<T>(key: string) {
-          if (typeof value !== "object") {
+          if (typeof selectedValue !== "object") {
             if (key === "*") {
-              return value as T;
+              return selectedValue as T;
             } else {
               return undefined;
             }
           }
-          return getProperty(value, key);
+          return getProperty(selectedValue, key);
         },
         setValue(key, newValue) {
-          if (typeof value === "undefined") {
+          if (
+            typeof selectedValue === "undefined" ||
+            typeof value === "undefined"
+          ) {
             console.error("Value is undefined");
             return;
-          } else if (!value) {
-            console.error("Value is falsy", { value });
+          } else if (!selectedValue || !value) {
+            console.error("Value is falsy", { value: selectedValue });
             return;
           }
 
-          const prevValue = key === "*" ? value : getProperty(value, key);
+          const prevValue =
+            key === "*" ? selectedValue : getProperty(selectedValue, key);
           if (typeof prevValue !== typeof newValue) {
             console.error("New value has different type than the old value", {
               value,
@@ -154,7 +167,10 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
           } else if (typeof newValue === "undefined") {
             console.error("Value is undefined");
             return;
-          } else if (prevValue === value && typeof prevValue !== "object") {
+          } else if (
+            prevValue === selectedValue &&
+            typeof prevValue !== "object"
+          ) {
             if (key !== "*") {
               console.error("Invalid key", key);
               return;
@@ -168,10 +184,9 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
 
           onChange?.(
             produce(value, (draft) => {
-              if (section) {
+              if (selectedValue !== value) {
                 return setProperty(draft, section + "." + key, newValue);
               }
-
               return setProperty(draft, key, newValue);
             }),
           );
