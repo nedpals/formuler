@@ -1,36 +1,51 @@
 import { useState } from "react";
-import { JSONSchemaForm, FormRenderer } from "../dist/formuler";
+import {
+  JSONSchemaForm,
+  FormRenderer,
+  createDataFromSchema,
+  createRenderer,
+  Input,
+} from "../dist/formuler";
 import "./App.css";
 
 const schema: JSONSchemaForm = {
   type: "object",
   properties: {
-    name: {
-      type: "string",
-      formProperties: {
-        type: "input",
-        inputType: "text",
-        label: "Name",
-        placeholder: "Enter your name",
+    personal_information: {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+          formProperties: {
+            type: "input",
+            inputType: "text",
+            label: "Name",
+            placeholder: "Enter your name",
+          },
+        },
+        email: {
+          type: "string",
+          formProperties: {
+            type: "input",
+            inputType: "email",
+            label: "Email",
+            placeholder: "Enter your email",
+          },
+        },
       },
-    },
-    email: {
-      type: "string",
       formProperties: {
-        type: "input",
-        inputType: "email",
-        label: "Email",
-        placeholder: "Enter your email",
+        type: "section",
+        title: {
+          type: "text",
+          content: "Personal Information",
+        },
       },
     },
   },
 };
 
 function App() {
-  const [data, setData] = useState({
-    name: "",
-    email: "",
-  });
+  const [data, setData] = useState(createDataFromSchema(schema));
 
   return (
     <main
@@ -44,7 +59,26 @@ function App() {
           width: "50%",
         }}
       >
-        <FormRenderer schema={schema} value={data} onChange={setData} />
+        <FormRenderer
+          schema={schema}
+          section="personal_information"
+          render={createRenderer({
+            formComponentsByFormType: {
+              input: (props) => (
+                <div>
+                  <p style={{ marginBottom: 0 }}>
+                    {props.formProperties.label}
+                  </p>
+                  <Input {...props} />
+                </div>
+              ),
+            },
+          })}
+          value={data}
+          onChange={(data) => {
+            setData(data);
+          }}
+        />
       </div>
 
       <div
