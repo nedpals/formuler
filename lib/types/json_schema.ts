@@ -44,7 +44,7 @@ export type JSONSchemaString<Properties extends object = ExtensionProperties> =
 
 export type JSONSchemaNumber<Properties extends object = ExtensionProperties> =
   JSONSchemaBase<Properties> & {
-    type: "number";
+    type: "number" | "integer";
     multipleOf?: number;
     maximum?: number;
     exclusiveMaximum?: number;
