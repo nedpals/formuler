@@ -8,7 +8,7 @@ import DefaultRenderer from "../renderers";
 import { getProperty, setProperty } from "dot-prop";
 import { produce } from "immer";
 import { expandSectionSelector } from "../utils";
-import { useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 function FormRendererChild<
   RootSchemaType extends JSONSchemaForm,
@@ -41,7 +41,7 @@ function FormRendererChild<
             .filter((k) => typeof properties[k] === "object")
             .map((key) => (
               <FormRendererChild
-                key={key}
+                key={`property_${fullProperty}.${key}`}
                 schema={properties[key] as JSONSchemaForm}
                 parentProperty={fullProperty}
                 property={key}
@@ -61,7 +61,7 @@ function FormRendererChild<
             .filter((it) => typeof it === "object")
             .map((item, index) => (
               <FormRendererChild
-                key={index}
+                key={`property_${fullProperty}[${index}]`}
                 schema={item}
                 parentProperty={fullProperty}
                 property={`[${index}]`}
@@ -104,7 +104,7 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
   onChange?: (value: Value) => void; // TODO: define a type for value
   className?: string;
 }) {
-  const _render = render || DefaultRenderer;
+  const _render = useCallback(render || DefaultRenderer, []);
 
   const expandedSectionSelector = useMemo(
     () => (section ? expandSectionSelector(schema, section) : undefined),
@@ -123,11 +123,6 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
     () => (section ? getProperty(value, section)! : value),
     [value, section],
   );
-
-  useEffect(() => {
-    if (!section) return;
-    console.log("section", section, selectedValue, selectedSchema);
-  }, [selectedValue, selectedSchema, section]);
 
   return (
     <FormControllerContext.Provider
