@@ -1,17 +1,22 @@
 import { FormController, FormControllerProps } from "./types/form";
 import {
+  JSFType,
+  JSFTypeToJSONSchemaFormType,
   JSONSchemaForm,
-  JSONSchemaFormElement,
 } from "./types/json_schema_form";
 import Input from "./components/default_form_components/Input";
-import { JSONSchemaMultiTypeKeys } from "./types/json_schema";
+import { JSONSchema, JSONSchemaMultiTypeKeys } from "./types/json_schema";
 import { mergeWithObject } from "./utils";
 import { useMemo } from "react";
 
-const defaultFormComponentsByType: Record<
-  Exclude<JSONSchemaForm["type"], JSONSchemaMultiTypeKeys>,
-  FormController
-> = {
+export type FormComponentsByTypeMap = {
+  [K in Exclude<
+    JSONSchemaForm["type"],
+    JSONSchemaMultiTypeKeys
+  >]?: FormController<Extract<JSONSchema, { type: K }>>;
+};
+
+const defaultFormComponentsByType: FormComponentsByTypeMap = {
   string: Input,
   boolean: Input,
   number: Input,
@@ -25,22 +30,22 @@ const defaultFormComponentsByType: Record<
   ),
 };
 
-const defaultFormComponentsByFormType: {
-  [K in JSONSchemaFormElement["type"]]?: FormController;
-} = {
+export type FormTypeController<K extends JSFType> = FormController<
+  JSONSchemaForm,
+  Required<JSFTypeToJSONSchemaFormType<K>>
+>;
+
+export type FormComponentsByFormTypeMap = {
+  [K in JSFType]?: FormTypeController<K>;
+};
+
+const defaultFormComponentsByFormType: FormComponentsByFormTypeMap = {
   input: Input,
 };
 
-interface DefaultRendererProps {
-  formComponentsByType?: {
-    [K in Exclude<
-      JSONSchemaForm["type"],
-      JSONSchemaMultiTypeKeys
-    >]?: FormController;
-  };
-  formComponentsByFormType?: {
-    [K in JSONSchemaFormElement["type"]]?: FormController;
-  };
+export interface DefaultRendererProps {
+  formComponentsByType?: FormComponentsByTypeMap;
+  formComponentsByFormType?: FormComponentsByFormTypeMap;
   formComponentsByProperty?: Record<string, FormController>; // TODO: make it type safe. property refers to either the full property or the property
 }
 
@@ -49,16 +54,14 @@ interface DefaultRendererProps {
 // inside the `render` prop of the `FormRenderer` component.
 //
 // eslint-disable-next-line react-refresh/only-export-components
-export function createRenderer({
-  formComponentsByType = {},
-  formComponentsByFormType = {},
-  formComponentsByProperty = {},
-}: FormControllerProps & DefaultRendererProps): FormController {
+export function createRenderer(
+  renderProps?: DefaultRendererProps,
+): FormController {
   return (props) => (
     <DefaultRenderer
-      formComponentsByType={formComponentsByType}
-      formComponentsByFormType={formComponentsByFormType}
-      formComponentsByProperty={formComponentsByProperty}
+      formComponentsByType={renderProps?.formComponentsByType ?? {}}
+      formComponentsByFormType={renderProps?.formComponentsByFormType ?? {}}
+      formComponentsByProperty={renderProps?.formComponentsByProperty ?? {}}
       {...props}
     />
   );
@@ -108,24 +111,19 @@ export default function DefaultRenderer({
   ) {
     const formType = props.formProperties.type;
     if (formComponentsByFormType[formType]) {
-      const FormComponent = formComponentsByFormType[formType];
+      const FormComponent = formComponentsByFormType[
+        formType
+      ] as FormController;
       return <FormComponent {...props} />;
     }
   } else if (formComponentsByType) {
-    if (Array.isArray(props.schema.type)) {
-      for (const type of props.schema.type) {
-        if (
-          formComponentsByType[type] &&
-          typeof formComponentsByType[type] !== "undefined"
-        ) {
-          const FormComponent = formComponentsByType[type];
-          return <FormComponent {...props} />;
-        }
-      }
-    } else {
-      const schemaType = props.schema.type;
-      if (formComponentsByType[schemaType]) {
-        const FormComponent = formComponentsByType[schemaType];
+    const typesList = Array.isArray(props.schema.type)
+      ? props.schema.type
+      : [props.schema.type];
+
+    for (const type of typesList) {
+      if (formComponentsByType[type]) {
+        const FormComponent = formComponentsByType[type] as FormController;
         return <FormComponent {...props} />;
       }
     }

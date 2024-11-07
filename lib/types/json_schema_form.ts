@@ -8,8 +8,14 @@ export type JSONSchemaFormElement =
   | JSFControl
   | JSFCustom;
 
+export type JSFType = JSONSchemaFormElement["type"];
+
+export type JSFTypeToJSONSchemaFormElementType<JSFTyp extends JSFType> =
+  Extract<JSONSchemaFormElement, { type: JSFTyp }>;
+
 // Base interface for all JSF objects
 export interface JSFBase {
+  type: string;
   className?: string;
   layoutSettings?: JSFLayoutSettings;
 }
@@ -21,18 +27,18 @@ export interface JSFSection extends JSFBase {
   type: "section";
   layout?: JSFLayoutMeta;
   title: JSFText;
-  description: JSFText;
+  description?: JSFText;
 }
 
 // A layout is a container for other JSF objects
 //
 // JSON schema type required: object
-export interface JSFLayout extends JSFLayoutMeta {
+export interface JSFLayout extends JSFBase, JSFLayoutMeta {
   type: "layout";
 }
 
 // A layout meta object describes the layout of a layout or section
-export interface JSFLayoutMeta extends JSFBase {
+export interface JSFLayoutMeta {
   name: "row" | "col" | string;
 }
 
@@ -195,7 +201,8 @@ export type JSFFormProperty<
   formProperties?: JSFObject;
 };
 
-export type JSFSectionSchema = JSONSchemaObject<JSFFormProperty<JSFSection>>;
+export type JSFSectionSchema = JSONSchemaObject<JSFFormProperty> &
+  Required<JSFFormProperty<JSFSection>>;
 
 export type JSFContentSchema =
   | JSFTextSchema
@@ -245,3 +252,8 @@ export type JSONSchemaForm =
   | JSFContentSchema
   | JSFControlSchema
   | Exclude<JSONSchema<JSFFormProperty>, boolean>;
+
+export type JSFTypeToJSONSchemaFormType<JSFTyp extends JSFType> = Extract<
+  JSONSchemaForm & Required<JSFFormProperty>,
+  { formProperties: { type: JSFTyp } }
+>;

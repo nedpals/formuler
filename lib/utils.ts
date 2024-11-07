@@ -1,10 +1,7 @@
 import { produce } from "immer";
 import { JSONSchemaForm } from "./types/json_schema_form";
 
-export function mergeWithObject<V>(
-  obj1: Record<string, V>,
-  obj2: Record<string, V>,
-) {
+export function mergeWithObject<Obj extends object>(obj1: Obj, obj2: Obj) {
   if (Object.keys(obj2).length === 0) {
     return obj1;
   } else if (Object.keys(obj1).length === 0) {
@@ -17,6 +14,7 @@ export function mergeWithObject<V>(
         // @ts-expect-error - we are adding a new key to the object
         draft[key] = obj2[key];
       } else if (
+        //@ts-expect-error draft is an object
         typeof draft[key] === "object" &&
         typeof obj2[key] === "object"
       ) {
