@@ -25,13 +25,13 @@ export interface FormRendererProps<SchemaType extends JSONSchemaForm>
 // OutletRendererProps is the props type for OutletRenderer
 export type OutletRendererProps = Partial<FormRendererProps<JSONSchemaForm>>;
 
-// FormController is a component that provides a way to control a form element
+// FormFieldRenderer is a component that provides a way to control a form element
 export type FormFieldRenderer<
   RS extends JSONSchemaForm = JSONSchemaForm,
   S extends JSONSchemaForm = JSONSchemaForm,
 > = FC<FormFieldRendererProps<RS, S>>;
 
-// FormControllerProps is the props type for FormController
+// FormFieldRendererProps is the props type for FormController
 export interface FormFieldRendererProps<
   RS extends JSONSchemaForm = JSONSchemaForm,
   S extends JSONSchemaForm = JSONSchemaForm,
@@ -45,7 +45,7 @@ export interface FormFieldRendererProps<
   preference: ComponentRenderPreferences;
 }
 
-// FormTypeController is a component that provides a way to control a form element based on form type
+// FormTypeFieldRenderer is a component that provides a way to control a form element based on form type
 export type FormTypeFieldRenderer<K extends JSFType> = FormFieldRenderer<
   JSONSchemaForm,
   Required<JSFTypeToJSONSchemaFormType<K>>
