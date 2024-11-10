@@ -1,13 +1,18 @@
-# Formuler
+# Formuler 📝
 
-A dynamic form renderer library for React using a superset of JSON Schema.
-Perfect for remote web forms. Still in Alpha.
+A form renderer built for React. Create scalable, complex forms at less effort with the power of JSON Schema.
 
 ## Features
-- **Dynamic Form Rendering**: Render forms based on a superset of JSON Schema. Fetch the schema from the server or define it locally.
-- **Custom Components**: Style our default UI components or use your favorite UI libraries directly.
+- **Dynamic Form Rendering**: It uses JSON schema to define and render forms. Fetch the schema from the server or define it locally.
+- **Great Customizability**: Customize Form behavior with JSON Schema Form, style our default UI components, or use your favorite UI libraries directly.
 - **Compatible with Existing Libraries**: Use it with your favorite form libraries like Formik, react-hook-form, or react-jsonschema-form.
 - **Type-Safe**: Build type-safe forms easily with TypeScript. (WIP)
+
+## Perfect for...
+- Simple forms
+- Complex, multi-layout forms
+- Multi-step / wizard forms
+- Remote web forms
 
 ## Installation
 ```bash
@@ -18,9 +23,10 @@ npm install formuler
 ```jsx
 import React from 'react';
 import { FormRenderer } from 'formuler';
+import { SimpleForm, SimpleFormRenderer } from 'formuler/simple_form';
 
 export default function App() {
-  // Provide your schema. Fetch the schema from the server or define it locally
+  // 1. Define your form's schema or fetch it remotely
   const schema = {
     type: 'object',
     properties: {
@@ -45,61 +51,63 @@ export default function App() {
     },
   };
 
-  // Provide a value and a function to update the value.
-  // You may use your favorite state management or form library.
+  // 2. Provide a value and a function to update the value.
+  // In this case, we will use `useState` and `SimpleForm` from `simple_form` subpackage
+  // (you can use your own form/state management library!)
   const [value, setValue] = React.useState({
     name: 'Bob',
     age: 18,
   });
 
-  // Render the form using FormRenderer
+  // 3. Render your form using FormRenderer
   return (
-    <FormRenderer
-      schema={schema}
-      value={value}
-      onChange={setValue}
-    />
+    <SimpleForm value={value} onChange={setValue}>
+      <FormRenderer
+        schema={schema}
+        render={SimpleFormRenderer} />
+    </SimpleForm>
   );
 }
 ```
 
 ## Usage
 ### Extend/Override Default Components
-Formuler provides default components for rendering forms. You can extend or override them to fit your needs through the `createRenderer` function.
-You may override at the type level, form type level, property-level, and layout-level.
+Formuler's built-in `simple_form` package provides default components for rendering forms.
+You can extend or override them to fit your needs by overriding the simple_form's `SimpleFormRenderer` component.
+You may override at various levels: schema type-level, form type level, property-level, and layout-level.
 
 ```jsx
 <FormRenderer
   schema={schema}
-  render={createRenderer({
-    formComponentsByType: {
-      string: ({ formProperties }) => <p className="text-xl">{formProperties.content}</p>,
-    },
-    formComponentsByFormType: {
-      input: (props) => (
-        <div>
-          <p style={{ marginBottom: 0 }}>
-            {props.formProperties.label}
-          </p>
-          <Input {...props} />
-        </div>
-      ),
-    },
-  })}
-  value={data}
-  onChange={(data) => {
-    setData(data);
-  }}
-/>
+  render={(props) => (
+    <SimpleFormRenderer
+      {...props}
+      byType={{
+        string: ({ formProperties }) => <p className="text-xl">{formProperties.content}</p>,
+      }}
+      byFormType={{
+        input: (props) => (
+          <div>
+            <p style={{ marginBottom: 0 }}>
+              {props.formProperties.label}
+            </p>
+            <Input {...props} />
+          </div>
+        ),
+      }} />
+  )} />
 ```
 
-### Using Components from UI Libraries
-No need for separate packages for your favorite UI libraries. You can use them directly with Formuler.
-Simply replace the render function with your favorite UI library components.
+### Using Third Party Components and Form/State Management
+While Formuler provides its own built-in set of components for rendering forms, you may use your own as well directly
+without the need for a separate "adapter" package. Simply replace the render function with your favorite UI library components.
 
+The same goes as well with form/state management libraries. Formuler does not provide an opinionated way of updating and setting
+form values and they are delegated instead to form libraries such as Formik and react-hook-form. You can use them inside your
+custom components or in conjunction with `SimpleForm` component (when using the default components).
+
+### ShadCN + react-hook-forms example
 ```jsx
-// ShadCN + react-hook-form example
-
 function default App() {
   // ...
 
@@ -109,7 +117,7 @@ function default App() {
         schema={schema}
         value={value}
         onChange={setValue}
-        render={({ fullProperty, Outlet }) => (
+        render={({ fullProperty }) => (
           <FormField
             control={form.control}
             name={fullProperty}
@@ -131,8 +139,8 @@ function default App() {
 
 ### Wizard Form through the `section` prop
 
-You can create a wizard-like form experience through the `section` prop. This requires the schema you want to pick
-to be an `object` schema with `section` form type.
+You can extract or render only a section of your form's schema through the `section` prop.
+This is perfect when you are building multi-step or wizard-like forms.
 
 In this example, we have two sections: `personal_information` and `contact_information`.
 
@@ -198,8 +206,39 @@ the `section` prop to the `FormRenderer` component.
 ```
 
 ## JSON Schema Form (JSF)
-Formuler extends JSON Schema with custom properties to define form behavior
+
+Formuler provides a superset of JSON Schema that allows you to define form behavior
 within the schema itself, making it both flexible and erasable for validation purposes.
+
+### Elements
+
+JSF consists is composed of three main element types: **sections**, **layouts**, **contents**, and **controls**.
+
+- **Sections** allow you to segment and group part of your form with its own layout, title, and descriptions.
+- **Layouts** allow you to define custom layout for a specific part of the form (eg. grids, rows, columns)
+- **Contents** displays property values as static, non-editable elements (eg. images, videos, and etc.)
+- **Controls** ables to you to edit and control the schema's property value.
+
+#### List of Components
+- `section` - A section element that groups properties together.
+- `layout` - A layout element that defines the layout of the form.
+- `custom` - A custom element.
+- `content` - A content element that displays non-editable content.
+  - `text` - A text content element.
+  - `rich-text` - A rich text content element.
+  - `image` - An image content element.
+  - `video` - A video content element.
+  - `oembed` - An oembed content element.
+- `controls` - A controls element that defines the form controls.
+  - `button` - A button control element.
+  - `input` - An input control element.
+  - `custom-control` - A custom control element.
+
+For full documentation, see [types/json_schema_form.ts](lib/types/json_schema_form.ts).
+
+### Example
+To define the form properties for that specific property/schema, simply add a `formProperties`
+`object` property with `type` and its associated configurations.
 
 ```json
 {
@@ -237,22 +276,6 @@ within the schema itself, making it both flexible and erasable for validation pu
   }
 }
 ```
-
-### Elements
-JSF is composed of multiple elements that can be used to define the form behavior:
-- `section` - A section element that groups properties together.
-- `layout` - A layout element that defines the layout of the form.
-- `content` - A content element that displays non-editable content.
-  - `text` - A text content element.
-  - `rich-text` - A rich text content element.
-  - `image` - An image content element.
-  - `video` - A video content element.
-  - `oembed` - An oembed content element.
-- `controls` - A controls element that defines the form controls.
-  - `button` - A button control element.
-  - `input` - An input control element.
-
-For full documentation, see [types/json_schema_form.ts](lib/types/json_schema_form.ts).
 
 ## Goals
 The current goals of Formuler are:
