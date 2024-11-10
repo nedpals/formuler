@@ -6,9 +6,14 @@
   "module": "./dist/formuler.js",
   "exports": {
     ".": {
-      "types": "./dist/lib/formuler.d.ts",
+      "types": "./dist/formuler.d.ts",
       "import": "./dist/formuler.js",
-      "require": "./dist/formuler.umd.cjs"
+      "require": "./dist/formuler.cjs"
+    },
+    "./simple_form": {
+      "types": "./dist/simple_form/index.d.ts",
+      "import": "./dist/simple_form/index.js",
+      "require": "./dist/simple_form/index.cjs"
     }
   },
   "types": "dist/formuler.d.ts",

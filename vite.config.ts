@@ -13,9 +13,12 @@ export default defineConfig({
   build: {
     copyPublicDir: false,
     lib: {
-      entry: resolve(__dirname, "lib/formuler.ts"),
+      entry: {
+        formuler: resolve(__dirname, "lib/formuler.ts"),
+        "simple_form/index": resolve(__dirname, "lib/simple_form/index.ts"),
+      },
       name: "Formuler",
-      formats: ["umd", "es"],
+      formats: ["cjs", "es"],
     },
     rollupOptions: {
       external: ["react", "react/jsx-runtime"],
