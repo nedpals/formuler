@@ -114,8 +114,8 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
       <div className={className}>
         <FormRendererChild
           schema={selectedSchema}
-          property=""
-          parentProperty={section ?? ""}
+          property={section ?? ""}
+          parentProperty=""
           preferPropertyComponent
           preferFormTypeComponent
           preferSchemaTypeComponent
@@ -124,3 +124,5 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
     </FormRenderContext.Provider>
   );
 }
+
+FormRenderer.displayName = "FormRenderer";
