@@ -84,14 +84,6 @@ export function expandSectionSelector<S extends JSONSchemaForm>(
       break;
     }
 
-    // Additional check to see if the new schema is a section
-    if (
-      !newCurrentSchema.formProperties ||
-      newCurrentSchema.formProperties.type !== "section"
-    ) {
-      break;
-    }
-
     // Set the new schema as the current schema
     currentSchema = newCurrentSchema;
     expandedSelectorParts.push(...newSelectorParts);
