@@ -86,7 +86,7 @@ function FormRendererChild<
   );
 }
 
-export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
+export default function FormRenderer<SchemaType extends JSONSchemaForm>({
   className,
   render,
   section,
@@ -94,8 +94,6 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
 }: Omit<FormRendererProps<SchemaType>, "property" | "parentProperty"> & {
   section?: string;
   render: FormFieldRenderer;
-  value?: Value; // TODO: define a type for value
-  onChange?: (value: Value) => void; // TODO: define a type for value
   className?: string;
 }) {
   const _render = useCallback(render, []);
