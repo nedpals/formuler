@@ -14,7 +14,7 @@ export interface FormRenderContextValue<
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const FormRenderContext = createContext<
+export const _FormRenderContext = createContext<
   FormRenderContextValue | undefined
 >(undefined);
 
@@ -23,9 +23,11 @@ export const useFormRenderContext = <
   RS extends JSONSchemaForm = JSONSchemaForm,
   S extends JSONSchemaForm = JSONSchemaForm,
 >() =>
-  useContext(FormRenderContext as React.Context<FormRenderContextValue<RS, S>>);
+  useContext(
+    _FormRenderContext as React.Context<FormRenderContextValue<RS, S>>,
+  );
 
-export function FormRenderProvider<RS extends JSONSchemaForm = JSONSchemaForm>({
+export function FormRenderContext<RS extends JSONSchemaForm = JSONSchemaForm>({
   children,
   rootSchema,
   render,
@@ -35,8 +37,8 @@ export function FormRenderProvider<RS extends JSONSchemaForm = JSONSchemaForm>({
   render: FormFieldRenderer;
 }) {
   return (
-    <FormRenderContext.Provider value={{ rootSchema, render }}>
+    <_FormRenderContext.Provider value={{ rootSchema, render }}>
       {children}
-    </FormRenderContext.Provider>
+    </_FormRenderContext.Provider>
   );
 }

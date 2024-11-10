@@ -105,12 +105,7 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
   );
 
   return (
-    <FormRenderContext.Provider
-      value={{
-        rootSchema: selectedSchema,
-        render: _render,
-      }}
-    >
+    <FormRenderContext rootSchema={selectedSchema} render={_render}>
       <div className={className}>
         <FormRendererChild
           schema={selectedSchema}
@@ -121,7 +116,7 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
           preferSchemaTypeComponent
         />
       </div>
-    </FormRenderContext.Provider>
+    </FormRenderContext>
   );
 }
 

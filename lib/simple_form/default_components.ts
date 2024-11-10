@@ -1,6 +1,8 @@
-import { FormFieldRenderer, FormTypeFieldRenderer } from "../types/form";
-import { JSONSchema, JSONSchemaMultiTypeKeys } from "../types/json_schema";
-import { JSFType, JSONSchemaForm } from "../types/json_schema_form";
+import {
+  FormComponentsByFormTypeMap,
+  FormComponentsByTypeMap,
+} from "../components/FormComponentSlots";
+
 import {
   ArrayRender,
   Image as _Image,
@@ -13,17 +15,6 @@ import {
   Layout,
   Oembed,
 } from "./components";
-
-export type FormComponentsByFormTypeMap = {
-  [K in JSFType]?: FormTypeFieldRenderer<K>;
-};
-
-export type FormComponentsByTypeMap = {
-  [K in Exclude<
-    JSONSchemaForm["type"],
-    JSONSchemaMultiTypeKeys
-  >]?: FormFieldRenderer<JSONSchemaForm, Extract<JSONSchema, { type: K }>>;
-};
 
 export const defaultFormComponentsByType: FormComponentsByTypeMap = {
   string: Input,
