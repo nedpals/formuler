@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { JSONSchemaForm } from "./types/json_schema_form";
-import { FormController } from "./types/form";
+import { FormFieldRenderer } from "./types/form";
 
 // FormControllerContext is a context that provides a set of
 // functions to interact with the form controller. This avoids
@@ -10,9 +10,7 @@ export interface FormControllerContextValue<
   S extends JSONSchemaForm = JSONSchemaForm,
 > {
   rootSchema: RS;
-  render: FormController<RS, S>;
-  setValue: (key: string, value: unknown) => void;
-  getValue: <T = unknown>(key: string) => T | undefined;
+  render: FormFieldRenderer<RS, S>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -35,19 +33,13 @@ export function FormControllerProvider<
   children,
   rootSchema,
   render,
-  setValue,
-  getValue,
 }: {
   children: React.ReactNode;
   rootSchema: RS;
-  render: FormController;
-  setValue: (key: string, value: unknown) => void;
-  getValue: <T = unknown>(key: string) => T | undefined;
+  render: FormFieldRenderer;
 }) {
   return (
-    <FormControllerContext.Provider
-      value={{ rootSchema, render, getValue, setValue }}
-    >
+    <FormControllerContext.Provider value={{ rootSchema, render }}>
       {children}
     </FormControllerContext.Provider>
   );

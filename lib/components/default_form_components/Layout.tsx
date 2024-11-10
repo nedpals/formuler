@@ -1,6 +1,6 @@
-import { FormTypeController } from "../../types/form";
+import { FormTypeFieldRenderer } from "../../types/form";
 
-const Layout: FormTypeController<"layout"> = ({
+const Layout: FormTypeFieldRenderer<"layout"> = ({
   schema,
   formProperties,
   Outlet,

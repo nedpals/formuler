@@ -1,6 +1,6 @@
-import { FormTypeController } from "../../types/form";
+import { FormTypeFieldRenderer } from "../../types/form";
 
-const Video: FormTypeController<"video"> = ({
+const Video: FormTypeFieldRenderer<"video"> = ({
   formProperties,
   schema,
   property,

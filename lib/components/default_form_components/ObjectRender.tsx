@@ -1,8 +1,8 @@
 import { JSONSchemaForm } from "../../types/json_schema_form";
 import { JSONSchemaObject } from "../../types/json_schema";
-import { FormController } from "../../types/form";
+import { FormFieldRenderer } from "../../types/form";
 
-const ObjectRender: FormController<JSONSchemaForm, JSONSchemaObject> = ({
+const ObjectRender: FormFieldRenderer<JSONSchemaForm, JSONSchemaObject> = ({
   schema,
   fullProperty,
   Outlet,

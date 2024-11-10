@@ -4,13 +4,11 @@ import {
   useFormControllerContext,
 } from "../controller_context";
 import {
-  FormController,
+  FormFieldRenderer,
   FormRendererProps,
   OutletRendererProps,
 } from "../types/form";
-import DefaultRenderer from "../renderers";
-import { getProperty, setProperty } from "dot-prop";
-import { produce } from "immer";
+import { getProperty } from "dot-prop";
 import { expandSectionSelector } from "../utils";
 import { FC, useCallback, useMemo } from "react";
 
@@ -25,12 +23,10 @@ function FormRendererChild<
   preferPropertyComponent = true,
   preferSchemaTypeComponent = true,
 }: FormRendererProps<SchemaType>) {
-  const {
-    rootSchema,
-    render: RenderComponent,
-    getValue,
-    setValue,
-  } = useFormControllerContext<RootSchemaType, SchemaType>();
+  const { rootSchema, render: RenderComponent } = useFormControllerContext<
+    RootSchemaType,
+    SchemaType
+  >();
 
   const _FormRendererChild = useCallback<FC<OutletRendererProps>>(
     ({
@@ -74,12 +70,8 @@ function FormRendererChild<
       Outlet={_FormRendererChild}
       fullProperty={fullProperty}
       property={property}
-      getValue={getValue}
-      setValue={setValue}
-      value={getValue(fullProperty)}
-      onChange={(newValue) => setValue(fullProperty, newValue)}
       formProperties={schema.formProperties}
-      componentPreference={{
+      preference={{
         preferFormTypeComponent,
         preferPropertyComponent,
         preferSchemaTypeComponent,
@@ -93,16 +85,14 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
   render,
   section,
   schema,
-  value,
-  onChange,
 }: Omit<FormRendererProps<SchemaType>, "property" | "parentProperty"> & {
   section?: string;
-  render?: FormController;
+  render: FormFieldRenderer;
   value?: Value; // TODO: define a type for value
   onChange?: (value: Value) => void; // TODO: define a type for value
   className?: string;
 }) {
-  const _render = useCallback(render || DefaultRenderer, []);
+  const _render = useCallback(render, []);
 
   const expandedSectionSelector = useMemo(
     () => (section ? expandSectionSelector(schema, section) : undefined),
@@ -117,80 +107,18 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
     [schema, expandedSectionSelector],
   );
 
-  const selectedValue = useMemo(
-    () => (section ? getProperty(value, section)! : value),
-    [value, section],
-  );
-
   return (
     <FormControllerContext.Provider
       value={{
         rootSchema: selectedSchema,
         render: _render,
-        getValue<T>(key: string) {
-          if (typeof selectedValue !== "object") {
-            if (key === "*") {
-              return selectedValue as T;
-            } else {
-              return undefined;
-            }
-          }
-          return getProperty(selectedValue, key);
-        },
-        setValue(key, newValue) {
-          if (
-            typeof selectedValue === "undefined" ||
-            typeof value === "undefined"
-          ) {
-            console.error("Value is undefined");
-            return;
-          } else if (!selectedValue || !value) {
-            console.error("Value is falsy", { value: selectedValue });
-            return;
-          }
-
-          const prevValue =
-            key === "*" ? selectedValue : getProperty(selectedValue, key);
-          if (typeof prevValue !== typeof newValue) {
-            console.error("New value has different type than the old value", {
-              value,
-              newValue,
-            });
-            return;
-          } else if (typeof newValue === "undefined") {
-            console.error("Value is undefined");
-            return;
-          } else if (
-            prevValue === selectedValue &&
-            typeof prevValue !== "object"
-          ) {
-            if (key !== "*") {
-              console.error("Invalid key", key);
-              return;
-            }
-
-            onChange?.(newValue as Value);
-          } else if (key === "*") {
-            console.error("Rewriting the whole value is not allowed");
-            return;
-          }
-
-          onChange?.(
-            produce(value, (draft) => {
-              if (selectedValue !== value) {
-                return setProperty(draft, section + "." + key, newValue);
-              }
-              return setProperty(draft, key, newValue);
-            }),
-          );
-        },
       }}
     >
       <div className={className}>
         <FormRendererChild
           schema={selectedSchema}
           property=""
-          parentProperty=""
+          parentProperty={section ?? ""}
           preferPropertyComponent
           preferFormTypeComponent
           preferSchemaTypeComponent

@@ -1,6 +1,6 @@
-import { FormTypeController } from "../../types/form";
+import { FormTypeFieldRenderer } from "../../types/form";
 
-const Oembed: FormTypeController<"oembed"> = ({
+const Oembed: FormTypeFieldRenderer<"oembed"> = ({
   formProperties,
   schema,
   property,

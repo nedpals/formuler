@@ -1,6 +1,6 @@
-import { FormTypeController } from "../../types/form";
+import { FormTypeFieldRenderer } from "../../types/form";
 
-export const Text: FormTypeController<"text"> = ({
+export const Text: FormTypeFieldRenderer<"text"> = ({
   formProperties,
   schema,
   property,
@@ -14,7 +14,7 @@ export const Text: FormTypeController<"text"> = ({
   );
 };
 
-export const RichText: FormTypeController<"rich-text"> = ({
+export const RichText: FormTypeFieldRenderer<"rich-text"> = ({
   formProperties,
   schema,
   property,

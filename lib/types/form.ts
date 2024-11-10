@@ -26,37 +26,33 @@ export interface FormRendererProps<SchemaType extends JSONSchemaForm>
 export type OutletRendererProps = Partial<FormRendererProps<JSONSchemaForm>>;
 
 // FormController is a component that provides a way to control a form element
-export type FormController<
+export type FormFieldRenderer<
   RS extends JSONSchemaForm = JSONSchemaForm,
   S extends JSONSchemaForm = JSONSchemaForm,
-> = FC<FormControllerProps<RS, S>>;
+> = FC<FormFieldRendererProps<RS, S>>;
 
 // FormControllerProps is the props type for FormController
-export interface FormControllerProps<
+export interface FormFieldRendererProps<
   RS extends JSONSchemaForm = JSONSchemaForm,
   S extends JSONSchemaForm = JSONSchemaForm,
 > {
   Outlet: FC<OutletRendererProps>;
   fullProperty: string;
   property: string;
-  getValue: <T = unknown>(key: string) => T | undefined;
-  setValue: (key: string, value: unknown) => void;
-  onChange: (value: unknown) => void;
-  value: unknown;
   schema: S;
   rootSchema: RS;
   formProperties: S["formProperties"];
-  componentPreference: ComponentRenderPreferences;
+  preference: ComponentRenderPreferences;
 }
 
 // FormTypeController is a component that provides a way to control a form element based on form type
-export type FormTypeController<K extends JSFType> = FormController<
+export type FormTypeFieldRenderer<K extends JSFType> = FormFieldRenderer<
   JSONSchemaForm,
   Required<JSFTypeToJSONSchemaFormType<K>>
 >;
 
-export type FormTypeCustomController<CType extends string = string> =
-  FormController<JSONSchemaForm, Required<JSFCustomSchema<CType>>>;
+export type FormTypeCustomFieldRenderer<CType extends string = string> =
+  FormFieldRenderer<JSONSchemaForm, Required<JSFCustomSchema<CType>>>;
 
-export type FormTypeCustomControlController<CCType extends string = string> =
-  FormController<JSONSchemaForm, Required<JSFCustomControlSchema<CCType>>>;
+export type FormTypeCustomControlFieldRenderer<CCType extends string = string> =
+  FormFieldRenderer<JSONSchemaForm, Required<JSFCustomControlSchema<CCType>>>;

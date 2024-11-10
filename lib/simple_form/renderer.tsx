@@ -1,13 +1,13 @@
 import {
-  FormController,
-  FormControllerProps,
-  FormTypeController,
-  FormTypeCustomControlController,
-  FormTypeCustomController,
-} from "./types/form";
-import { JSFType, JSONSchemaForm } from "./types/json_schema_form";
-import { JSONSchema, JSONSchemaMultiTypeKeys } from "./types/json_schema";
-import { mergeWithObject } from "./utils";
+  FormFieldRenderer,
+  FormFieldRendererProps,
+  FormTypeFieldRenderer,
+  FormTypeCustomControlFieldRenderer,
+  FormTypeCustomFieldRenderer,
+} from "../types/form";
+import { JSFType, JSONSchemaForm } from "../types/json_schema_form";
+import { JSONSchema, JSONSchemaMultiTypeKeys } from "../types/json_schema";
+import { mergeWithObject } from "../utils";
 import { useMemo } from "react";
 import {
   ArrayRender,
@@ -20,13 +20,13 @@ import {
   Video,
   Layout,
   Oembed,
-} from "./components";
+} from "../components";
 
 export type FormComponentsByTypeMap = {
   [K in Exclude<
     JSONSchemaForm["type"],
     JSONSchemaMultiTypeKeys
-  >]?: FormController<JSONSchemaForm, Extract<JSONSchema, { type: K }>>;
+  >]?: FormFieldRenderer<JSONSchemaForm, Extract<JSONSchema, { type: K }>>;
 };
 
 const defaultFormComponentsByType: FormComponentsByTypeMap = {
@@ -40,7 +40,7 @@ const defaultFormComponentsByType: FormComponentsByTypeMap = {
 };
 
 export type FormComponentsByFormTypeMap = {
-  [K in JSFType]?: FormTypeController<K>;
+  [K in JSFType]?: FormTypeFieldRenderer<K>;
 };
 
 const defaultFormComponentsByFormType: FormComponentsByFormTypeMap = {
@@ -57,36 +57,13 @@ const defaultFormComponentsByFormType: FormComponentsByFormTypeMap = {
 export interface DefaultRendererProps {
   formComponentsByType?: FormComponentsByTypeMap;
   formComponentsByFormType?: FormComponentsByFormTypeMap;
-  formComponentsByProperty?: Record<string, FormController>; // TODO: make it type safe. property refers to either the full property or the property
-  formComponentsByCustomType?: Record<string, FormTypeCustomController>;
+  formComponentsByProperty?: Record<string, FormFieldRenderer>; // TODO: make it type safe. property refers to either the full property or the property
+  formComponentsByCustomType?: Record<string, FormTypeCustomFieldRenderer>;
   formComponentsByCustomControlType?: Record<
     string,
-    FormTypeCustomControlController
+    FormTypeCustomControlFieldRenderer
   >;
-  formComponentsByLayoutName?: Record<string, FormTypeController<"layout">>;
-}
-
-// createRenderer is a factory function that creates a renderer component.
-// You can use this to override the default form components when using it
-// inside the `render` prop of the `FormRenderer` component.
-//
-// eslint-disable-next-line react-refresh/only-export-components
-export function createRenderer(
-  renderProps?: DefaultRendererProps,
-): FormController {
-  return (props) => (
-    <DefaultRenderer
-      formComponentsByType={renderProps?.formComponentsByType ?? {}}
-      formComponentsByFormType={renderProps?.formComponentsByFormType ?? {}}
-      formComponentsByProperty={renderProps?.formComponentsByProperty ?? {}}
-      formComponentsByCustomType={renderProps?.formComponentsByCustomType ?? {}}
-      formComponentsByCustomControlType={
-        renderProps?.formComponentsByCustomControlType ?? {}
-      }
-      formComponentsByLayoutName={renderProps?.formComponentsByLayoutName ?? {}}
-      {...props}
-    />
-  );
+  formComponentsByLayoutName?: Record<string, FormTypeFieldRenderer<"layout">>;
 }
 
 // DefaultRenderer is a component that renders the form based on the schema type.
@@ -98,12 +75,12 @@ export default function DefaultRenderer({
   formComponentsByCustomControlType: _formComponentsByCustomControlType = {},
   formComponentsByLayoutName: _formComponentsByLayoutName = {},
   ...props
-}: FormControllerProps & DefaultRendererProps) {
+}: FormFieldRendererProps & DefaultRendererProps) {
   const {
     preferFormTypeComponent,
     preferPropertyComponent,
     preferSchemaTypeComponent,
-  } = props.componentPreference;
+  } = props.preference;
 
   const formComponentsByType = useMemo(
     () => mergeWithObject(defaultFormComponentsByType, _formComponentsByType),
@@ -166,14 +143,14 @@ export default function DefaultRenderer({
     ) {
       const FormComponent = formComponentsByLayoutName[
         props.formProperties.name
-      ] as FormController;
+      ] as FormFieldRenderer;
       return <FormComponent {...props} />;
     } else if (formType === "custom") {
       const customType = props.formProperties.customContentType;
       if (formComponentsByCustomType[customType]) {
         const FormComponent = formComponentsByCustomType[
           customType
-        ] as FormController;
+        ] as FormFieldRenderer;
         return <FormComponent {...props} />;
       }
     } else if (formType === "custom-control") {
@@ -181,13 +158,13 @@ export default function DefaultRenderer({
       if (formComponentsByCustomControlType[controlType]) {
         const FormComponent = formComponentsByCustomControlType[
           controlType
-        ] as FormController;
+        ] as FormFieldRenderer;
         return <FormComponent {...props} />;
       }
     } else if (formComponentsByFormType[formType]) {
       const FormComponent = formComponentsByFormType[
         formType
-      ] as FormController;
+      ] as FormFieldRenderer;
       return <FormComponent {...props} />;
     }
   } else if (preferSchemaTypeComponent) {
@@ -197,7 +174,7 @@ export default function DefaultRenderer({
 
     for (const type of typesList) {
       if (formComponentsByType[type]) {
-        const FormComponent = formComponentsByType[type] as FormController;
+        const FormComponent = formComponentsByType[type] as FormFieldRenderer;
         return <FormComponent {...props} />;
       }
     }

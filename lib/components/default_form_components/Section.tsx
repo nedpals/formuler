@@ -1,6 +1,6 @@
-import { FormTypeController } from "../../types/form";
+import { FormTypeFieldRenderer } from "../../types/form";
 
-const Section: FormTypeController<"section"> = ({
+const Section: FormTypeFieldRenderer<"section"> = ({
   schema,
   formProperties,
   Outlet,
