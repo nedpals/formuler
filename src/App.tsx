@@ -3,9 +3,9 @@ import {
   JSONSchemaForm,
   FormRenderer,
   createDataFromSchema,
-  createRenderer,
-  Input,
 } from "../dist/formuler";
+import { Input } from "../dist/simple_form";
+import { SimpleForm, SimpleFormRenderer } from "../dist/simple_form";
 import "./App.css";
 
 const schema: JSONSchemaForm = {
@@ -119,52 +119,53 @@ function App() {
           width: "50%",
         }}
       >
-        <FormRenderer
-          schema={schema}
-          render={createRenderer({
-            formComponentsByType: {
-              string: () => <p>test</p>,
-              object: ({ schema, Outlet, fullProperty }) => {
-                const properties = schema.properties;
-                if (typeof properties !== "object") {
-                  return <></>;
-                }
+        <SimpleForm value={data} onChange={(data) => setData(data)}>
+          <FormRenderer
+            schema={schema}
+            render={(props) => (
+              <SimpleFormRenderer
+                {...props}
+                formComponentsByType={{
+                  string: () => <p>test</p>,
+                  object: ({ schema, Outlet, fullProperty }) => {
+                    const properties = schema.properties;
+                    if (typeof properties !== "object") {
+                      return <></>;
+                    }
 
-                return (
-                  <div>
-                    {Object.keys(properties)
-                      .filter((k) => typeof properties[k] === "object")
-                      .map((key) => (
-                        <Outlet
-                          key={`property_${fullProperty}.${key}`}
-                          schema={properties[key] as JSONSchemaForm}
-                          parentProperty={fullProperty}
-                          property={key}
-                          preferFormTypeComponent
-                          preferPropertyComponent
-                          preferSchemaTypeComponent
-                        />
-                      ))}
-                  </div>
-                );
-              },
-            },
-            formComponentsByFormType: {
-              input: (props) => (
-                <div>
-                  <p style={{ marginBottom: 0 }}>
-                    {props.formProperties.label}
-                  </p>
-                  <Input {...props} />
-                </div>
-              ),
-            },
-          })}
-          value={data}
-          onChange={(data) => {
-            setData(data);
-          }}
-        />
+                    return (
+                      <div>
+                        {Object.keys(properties)
+                          .filter((k) => typeof properties[k] === "object")
+                          .map((key) => (
+                            <Outlet
+                              key={`property_${fullProperty}.${key}`}
+                              schema={properties[key] as JSONSchemaForm}
+                              parentProperty={fullProperty}
+                              property={key}
+                              preferFormTypeComponent
+                              preferPropertyComponent
+                              preferSchemaTypeComponent
+                            />
+                          ))}
+                      </div>
+                    );
+                  },
+                }}
+                formComponentsByFormType={{
+                  input: (props) => (
+                    <div>
+                      <p style={{ marginBottom: 0 }}>
+                        {props.formProperties.label}
+                      </p>
+                      <Input {...props} />
+                    </div>
+                  ),
+                }}
+              />
+            )}
+          />
+        </SimpleForm>
       </div>
 
       <div
