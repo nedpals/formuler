@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { createContext, useContext, useMemo } from "react";
 
 export interface SimpleFormContextValue<T = unknown> {
@@ -10,7 +11,12 @@ export interface SimpleFormContextValue<T = unknown> {
 
 export const SimpleFormContext = createContext<
   SimpleFormContextValue | undefined
->(undefined);
+>({
+  value: {},
+  getValue: (_key) => undefined,
+  onChange: (_value) => {},
+  setValue: (_key, _value) => {},
+});
 
 export const useSimpleFormContext = <T = unknown>() =>
   useContext(SimpleFormContext as React.Context<SimpleFormContextValue<T>>);
