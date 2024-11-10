@@ -67,7 +67,7 @@ export interface DefaultRendererProps {
 }
 
 // DefaultRenderer is a component that renders the form based on the schema type.
-export default function DefaultRenderer({
+export function DefaultRenderer({
   formComponentsByType: _formComponentsByType = {},
   formComponentsByFormType: _formComponentsByFormType = {},
   formComponentsByProperty: _formComponentsByProperty = {},
