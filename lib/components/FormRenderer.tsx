@@ -1,8 +1,5 @@
 import { JSONSchemaForm } from "../types/json_schema_form";
-import {
-  FormControllerContext,
-  useFormControllerContext,
-} from "../controller_context";
+import { FormRenderContext, useFormRenderContext } from "../render_context";
 import {
   FormFieldRenderer,
   FormRendererProps,
@@ -23,7 +20,7 @@ function FormRendererChild<
   preferPropertyComponent = true,
   preferSchemaTypeComponent = true,
 }: FormRendererProps<SchemaType>) {
-  const { rootSchema, render: RenderComponent } = useFormControllerContext<
+  const { rootSchema, render: RenderComponent } = useFormRenderContext<
     RootSchemaType,
     SchemaType
   >();
@@ -108,7 +105,7 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
   );
 
   return (
-    <FormControllerContext.Provider
+    <FormRenderContext.Provider
       value={{
         rootSchema: selectedSchema,
         render: _render,
@@ -124,6 +121,6 @@ export default function FormRenderer<SchemaType extends JSONSchemaForm, Value>({
           preferSchemaTypeComponent
         />
       </div>
-    </FormControllerContext.Provider>
+    </FormRenderContext.Provider>
   );
 }

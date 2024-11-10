@@ -2,10 +2,10 @@ import { createContext, useContext } from "react";
 import { JSONSchemaForm } from "./types/json_schema_form";
 import { FormFieldRenderer } from "./types/form";
 
-// FormControllerContext is a context that provides a set of
-// functions to interact with the form controller. This avoids
+// FormRenderContext is a context that provides a set of
+// functions to interact with the form render. This avoids
 // prop drilling and makes it easier to interact with the form.
-export interface FormControllerContextValue<
+export interface FormRenderContextValue<
   RS extends JSONSchemaForm = JSONSchemaForm,
   S extends JSONSchemaForm = JSONSchemaForm,
 > {
@@ -14,22 +14,18 @@ export interface FormControllerContextValue<
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const FormControllerContext = createContext<
-  FormControllerContextValue | undefined
+export const FormRenderContext = createContext<
+  FormRenderContextValue | undefined
 >(undefined);
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useFormControllerContext = <
+export const useFormRenderContext = <
   RS extends JSONSchemaForm = JSONSchemaForm,
   S extends JSONSchemaForm = JSONSchemaForm,
 >() =>
-  useContext(
-    FormControllerContext as React.Context<FormControllerContextValue<RS, S>>,
-  );
+  useContext(FormRenderContext as React.Context<FormRenderContextValue<RS, S>>);
 
-export function FormControllerProvider<
-  RS extends JSONSchemaForm = JSONSchemaForm,
->({
+export function FormRenderProvider<RS extends JSONSchemaForm = JSONSchemaForm>({
   children,
   rootSchema,
   render,
@@ -39,8 +35,8 @@ export function FormControllerProvider<
   render: FormFieldRenderer;
 }) {
   return (
-    <FormControllerContext.Provider value={{ rootSchema, render }}>
+    <FormRenderContext.Provider value={{ rootSchema, render }}>
       {children}
-    </FormControllerContext.Provider>
+    </FormRenderContext.Provider>
   );
 }
