@@ -1,4 +1,5 @@
 // Default form components
+export { default as Button } from "./Button";
 export { default as Input } from "./Input";
 export { default as Section } from "./Section";
 export { default as Layout } from "./Layout";

@@ -6,8 +6,10 @@ import { produce } from "immer";
 export function SimpleForm<T = unknown>({
   children,
   onChange,
+  onEvent,
   value,
 }: Omit<SimpleFormContextValue<T>, "getValue" | "setValue"> & {
+  onEvent?: (name: string, payload: unknown) => void;
   children: ReactNode;
 }) {
   const getValue = useCallback(
@@ -62,6 +64,13 @@ export function SimpleForm<T = unknown>({
     [value],
   );
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  const dispatch = useCallback(
+    onEvent ?? ((_n: string, _p: unknown) => {}),
+    [],
+  );
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+
   return (
     <SimpleFormContext.Provider
       value={
@@ -70,6 +79,7 @@ export function SimpleForm<T = unknown>({
           value,
           getValue,
           setValue,
+          dispatch,
         } as SimpleFormContextValue
       }
     >

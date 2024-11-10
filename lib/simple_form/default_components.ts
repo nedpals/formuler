@@ -14,6 +14,7 @@ import {
   Video,
   Layout,
   Oembed,
+  Button,
 } from "./components";
 
 export const defaultFormComponentsByType: FormComponentsByTypeMap = {
@@ -35,4 +36,5 @@ export const defaultFormComponentsByFormType: FormComponentsByFormTypeMap = {
   video: Video,
   layout: Layout,
   oembed: Oembed,
+  button: Button,
 };

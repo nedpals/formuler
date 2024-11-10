@@ -7,6 +7,8 @@ export interface SimpleFormContextValue<T = unknown> {
 
   getValue: <T = unknown>(key: string) => T | undefined;
   setValue: (key: string, value: unknown) => void;
+
+  dispatch: (name: string, payload: unknown) => void;
 }
 
 export const SimpleFormContext = createContext<
@@ -16,6 +18,7 @@ export const SimpleFormContext = createContext<
   getValue: (_key) => undefined,
   onChange: (_value) => {},
   setValue: (_key, _value) => {},
+  dispatch: (_name, _payload) => {},
 });
 
 export const useSimpleFormContext = <T = unknown>() =>
@@ -23,11 +26,12 @@ export const useSimpleFormContext = <T = unknown>() =>
 
 export interface SimpleFormControllerContextValue<T = unknown> {
   onChange: (value: T) => void;
+  dispatch: (name: string, payload: unknown) => void;
   value: T;
 }
 
 export const useSimpleFormController = <T = unknown>(key: string) => {
-  const { setValue, getValue, value } = useSimpleFormContext();
+  const { setValue, getValue, value, dispatch } = useSimpleFormContext();
   const fieldValue = useMemo(() => getValue<T>(key), [value]);
 
   return {
@@ -35,5 +39,6 @@ export const useSimpleFormController = <T = unknown>(key: string) => {
       setValue(key, value);
     },
     value: fieldValue,
+    dispatch,
   } as SimpleFormControllerContextValue<T>;
 };
