@@ -49,16 +49,29 @@ function FormRendererChild<
     [schema, parentProperty, property],
   );
 
-  if (typeof schema !== "object" || !("type" in schema)) {
-    return null;
-  }
-
   const fullProperty =
     parentProperty.length > 0
       ? property.startsWith("[")
         ? parentProperty + property
         : parentProperty + "." + property
       : property;
+
+  const preference = useMemo(
+    () => ({
+      preferFormTypeComponent,
+      preferPropertyComponent,
+      preferSchemaTypeComponent,
+    }),
+    [
+      preferFormTypeComponent,
+      preferPropertyComponent,
+      preferSchemaTypeComponent,
+    ],
+  );
+
+  if (typeof schema !== "object" || !("type" in schema)) {
+    return null;
+  }
 
   return (
     <RenderComponent
@@ -68,11 +81,7 @@ function FormRendererChild<
       fullProperty={fullProperty}
       property={property}
       formProperties={schema.formProperties}
-      preference={{
-        preferFormTypeComponent,
-        preferPropertyComponent,
-        preferSchemaTypeComponent,
-      }}
+      preference={preference}
     />
   );
 }
