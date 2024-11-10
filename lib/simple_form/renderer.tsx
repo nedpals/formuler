@@ -11,10 +11,9 @@ import {
   defaultFormComponentsByFormType,
   defaultFormComponentsByType,
 } from "./default_components";
-import {
+import FormComponentSlots, {
   FormComponentsByFormTypeMap,
   FormComponentsByTypeMap,
-  FormComponentSlots,
 } from "../components/FormComponentSlots";
 
 export interface SimpleFormRendererProps {

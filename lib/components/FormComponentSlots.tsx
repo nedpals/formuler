@@ -29,7 +29,7 @@ export interface FormComponentSlotProps {
   byLayoutName?: Record<string, FormTypeFieldRenderer<"layout">>;
 }
 
-export const FormComponentSlots = memo(
+const FormComponentSlots = memo(
   ({
     byType: _byType = {},
     byFormType: _byFormType = {},
@@ -121,3 +121,5 @@ export const FormComponentSlots = memo(
 );
 
 FormComponentSlots.displayName = "FormComponentSlots";
+
+export default FormComponentSlots;
