@@ -5,7 +5,7 @@ import {
   JSFType,
   JSFTypeToJSONSchemaFormType,
   JSONSchemaForm,
-} from "../jsf";
+} from "./jsf";
 
 // ComponentRenderPreferences is a type that defines the preferences for rendering components
 export interface ComponentRenderPreferences {

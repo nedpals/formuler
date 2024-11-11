@@ -1,4 +1,4 @@
-import { FormFieldRenderer } from "../../types/form";
+import { FormFieldRenderer } from "../../form_types";
 import { JSONSchemaArray } from "../../json_schema";
 import { JSONSchemaForm } from "../../jsf";
 

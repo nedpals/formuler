@@ -1,4 +1,4 @@
-import { FormTypeFieldRenderer } from "../../types/form";
+import { FormTypeFieldRenderer } from "../../form_types";
 
 export const Text: FormTypeFieldRenderer<"text"> = ({
   formProperties,

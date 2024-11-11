@@ -1,6 +1,6 @@
 import { JSONSchemaForm } from "../../formuler";
 import { useSimpleFormController } from "../../simple_form";
-import { FormFieldRendererProps } from "../../types/form";
+import { FormFieldRendererProps } from "../../form_types";
 
 export default function Input<
   RS extends JSONSchemaForm = JSONSchemaForm,

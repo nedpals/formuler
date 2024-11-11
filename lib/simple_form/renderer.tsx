@@ -5,7 +5,7 @@ import {
   FormTypeFieldRenderer,
   FormTypeCustomControlFieldRenderer,
   FormTypeCustomFieldRenderer,
-} from "../types/form";
+} from "../form_types";
 import { mergeWithObject } from "./utils";
 import {
   defaultFormComponentsByFormType,

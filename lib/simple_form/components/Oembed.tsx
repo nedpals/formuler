@@ -1,4 +1,4 @@
-import { FormTypeFieldRenderer } from "../../types/form";
+import { FormTypeFieldRenderer } from "../../form_types";
 
 const Oembed: FormTypeFieldRenderer<"oembed"> = ({
   formProperties,

@@ -5,7 +5,7 @@ import {
   FormTypeCustomControlFieldRenderer,
   FormTypeCustomFieldRenderer,
   FormTypeFieldRenderer,
-} from "../types/form";
+} from "../form_types";
 import { JSONSchema, JSONSchemaMultiTypeKeys } from "../json_schema";
 import { JSFType, JSONSchemaForm } from "../jsf";
 

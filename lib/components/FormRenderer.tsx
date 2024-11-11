@@ -7,7 +7,7 @@ import {
   FormFieldRenderer,
   FormRendererProps,
   OutletRendererProps,
-} from "../types/form";
+} from "../form_types";
 
 function FormRendererChild<
   RootSchemaType extends JSONSchemaForm,

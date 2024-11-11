@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { JSONSchemaForm } from "./jsf";
-import { FormFieldRenderer } from "./types/form";
+import { FormFieldRenderer } from "./form_types";
 
 // FormRenderContext is a context that provides a set of
 // functions to interact with the form render. This avoids
