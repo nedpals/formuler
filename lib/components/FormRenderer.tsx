@@ -1,13 +1,13 @@
+import { getProperty } from "dot-prop";
+import { FC, useCallback, useMemo } from "react";
 import { JSONSchemaForm } from "../jsf";
+import { expandSectionSelector } from "../json_schema";
 import { FormRenderContext, useFormRenderContext } from "../render_context";
 import {
   FormFieldRenderer,
   FormRendererProps,
   OutletRendererProps,
 } from "../types/form";
-import { getProperty } from "dot-prop";
-import { expandSectionSelector } from "../utils";
-import { FC, useCallback, useMemo } from "react";
 
 function FormRendererChild<
   RootSchemaType extends JSONSchemaForm,
