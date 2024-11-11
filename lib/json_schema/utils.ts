@@ -1,4 +1,4 @@
-import { JSONSchema } from "./types/json_schema";
+import { JSONSchema } from "./types";
 
 //@ts-expect-error we may return any type derived from JSONSchema
 export function createDataFromSchema(schema: JSONSchema) {

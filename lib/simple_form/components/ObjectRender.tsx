@@ -1,5 +1,5 @@
-import { JSONSchemaForm } from "../../types/json_schema_form";
-import { JSONSchemaObject } from "../../types/json_schema";
+import { JSONSchemaForm } from "../../jsf";
+import { JSONSchemaObject } from "../../json_schema";
 import { FormFieldRenderer } from "../../types/form";
 
 const ObjectRender: FormFieldRenderer<JSONSchemaForm, JSONSchemaObject> = ({

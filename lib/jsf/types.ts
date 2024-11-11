@@ -1,4 +1,4 @@
-import { JSONSchema, JSONSchemaObject, JSONSchemaString } from "./json_schema";
+import { JSONSchema, JSONSchemaObject, JSONSchemaString } from "../json_schema";
 
 // The JSON Schema Form (JSF) is a JSON object that describes the structure of a form.
 export type JSONSchemaFormElement =

@@ -6,8 +6,8 @@ import {
   FormTypeCustomFieldRenderer,
   FormTypeFieldRenderer,
 } from "../types/form";
-import { JSONSchema, JSONSchemaMultiTypeKeys } from "../types/json_schema";
-import { JSFType, JSONSchemaForm } from "../types/json_schema_form";
+import { JSONSchema, JSONSchemaMultiTypeKeys } from "../json_schema";
+import { JSFType, JSONSchemaForm } from "../jsf";
 
 export type FormComponentsByFormTypeMap = {
   [K in JSFType]?: FormTypeFieldRenderer<K>;

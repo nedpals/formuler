@@ -1,6 +1,6 @@
 import { FormFieldRenderer } from "../../types/form";
-import { JSONSchemaArray } from "../../types/json_schema";
-import { JSONSchemaForm } from "../../types/json_schema_form";
+import { JSONSchemaArray } from "../../json_schema";
+import { JSONSchemaForm } from "../../jsf";
 
 const ArrayRender: FormFieldRenderer<JSONSchemaForm, JSONSchemaArray> = ({
   Outlet,

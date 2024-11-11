@@ -1,4 +1,4 @@
-import { JSONSchemaForm } from "../types/json_schema_form";
+import { JSONSchemaForm } from "../jsf";
 import { FormRenderContext, useFormRenderContext } from "../render_context";
 import {
   FormFieldRenderer,
