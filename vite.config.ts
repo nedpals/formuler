@@ -15,6 +15,8 @@ export default defineConfig({
     lib: {
       entry: {
         formuler: resolve(__dirname, "lib/formuler.ts"),
+        "json_schema/index": resolve(__dirname, "lib/json_schema/index.ts"),
+        "jsf/index": resolve(__dirname, "lib/jsf/index.ts"),
         "simple_form/index": resolve(__dirname, "lib/simple_form/index.ts"),
       },
       name: "Formuler",

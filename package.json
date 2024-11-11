@@ -20,6 +20,16 @@
       "types": "./dist/simple_form/index.d.ts",
       "import": "./dist/simple_form/index.js",
       "require": "./dist/simple_form/index.cjs"
+    },
+    "./json_schema": {
+      "types": "./dist/json_schema/index.d.ts",
+      "import": "./dist/json_schema/index.js",
+      "require": "./dist/json_schema/index.cjs"
+    },
+    "./jsf": {
+      "types": "./dist/jsf/index.d.ts",
+      "import": "./dist/jsf/index.js",
+      "require": "./dist/jsf/index.cjs"
     }
   },
   "types": "dist/formuler.d.ts",
