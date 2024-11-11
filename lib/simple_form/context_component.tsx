@@ -21,7 +21,6 @@ export function SimpleForm<T = unknown>({
           return undefined;
         }
       }
-      console.log(`[getValue] ${key}`, value);
       return getProperty(value, key);
     },
     [value],
