@@ -8,7 +8,7 @@ export function SimpleForm<T = unknown>({
   onChange,
   onEvent,
   value,
-}: Omit<SimpleFormContextValue<T>, "getValue" | "setValue"> & {
+}: Omit<SimpleFormContextValue<T>, "getValue" | "setValue" | "dispatch"> & {
   onEvent?: (name: string, payload: unknown) => void;
   children: ReactNode;
 }) {

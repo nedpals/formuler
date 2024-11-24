@@ -46,12 +46,15 @@ const FormComponentSlots = memo(
     } = props.preference;
 
     // Memoize all components
-    const byType = useMemo(() => _byType, []);
-    const byFormType = useMemo(() => _byFormType, []);
-    const byProperty = useMemo(() => _byProperty, []);
-    const byCustomType = useMemo(() => _byCustomType, []);
-    const byCustomControlType = useMemo(() => _byCustomControlType, []);
-    const byLayoutName = useMemo(() => _byLayoutName, []);
+    const byType = useMemo(() => _byType, [_byType]);
+    const byFormType = useMemo(() => _byFormType, [_byFormType]);
+    const byProperty = useMemo(() => _byProperty, [_byProperty]);
+    const byCustomType = useMemo(() => _byCustomType, [_byCustomType]);
+    const byCustomControlType = useMemo(
+      () => _byCustomControlType,
+      [_byCustomControlType],
+    );
+    const byLayoutName = useMemo(() => _byLayoutName, [_byLayoutName]);
 
     // Hierarchical order of precedence for component lookup:
     // 1. formComponentsByProperty
