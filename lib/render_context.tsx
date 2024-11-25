@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
 import { JSONSchemaForm } from "./jsf";
 import { FormFieldRenderer } from "./form_types";
 
@@ -29,16 +29,19 @@ export const useFormRenderContext = <
 
 export function FormRenderContext<RS extends JSONSchemaForm = JSONSchemaForm>({
   children,
-  rootSchema,
+  rootSchema: _rootSchema,
   render,
 }: {
   children: React.ReactNode;
   rootSchema: RS;
   render: FormFieldRenderer;
 }) {
+  const rootSchema = useMemo(() => _rootSchema, [_rootSchema]);
   return (
     <_FormRenderContext.Provider value={{ rootSchema, render }}>
       {children}
     </_FormRenderContext.Provider>
   );
 }
+
+FormRenderContext.displayName = "FormRenderContext";

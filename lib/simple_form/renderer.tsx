@@ -41,7 +41,7 @@ export const SimpleFormRenderer = memo(
   }: FormFieldRendererProps & SimpleFormRendererProps) => {
     const formComponentsByType = useMemo(
       () => mergeWithObject(defaultFormComponentsByType, _formComponentsByType),
-      [],
+      [_formComponentsByType],
     );
 
     const formComponentsByFormType = useMemo(
@@ -50,27 +50,27 @@ export const SimpleFormRenderer = memo(
           defaultFormComponentsByFormType,
           _formComponentsByFormType,
         ),
-      [],
+      [_formComponentsByFormType],
     );
 
     const formComponentsByProperty = useMemo(
       () => mergeWithObject({}, _formComponentsByProperty),
-      [],
+      [_formComponentsByProperty],
     );
 
     const formComponentsByCustomType = useMemo(
       () => mergeWithObject({}, _formComponentsByCustomType),
-      [],
+      [_formComponentsByCustomType],
     );
 
     const formComponentsByCustomControlType = useMemo(
       () => mergeWithObject({}, _formComponentsByCustomControlType),
-      [],
+      [_formComponentsByCustomControlType],
     );
 
     const formComponentsByLayoutName = useMemo(
       () => mergeWithObject({}, _formComponentsByLayoutName),
-      [],
+      [_formComponentsByLayoutName],
     );
 
     return (

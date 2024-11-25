@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import {
   FormFieldRenderer,
   FormFieldRendererProps,
@@ -31,12 +31,12 @@ export interface FormComponentSlotProps {
 
 const FormComponentSlots = memo(
   ({
-    byType: _byType = {},
-    byFormType: _byFormType = {},
-    byProperty: _byProperty = {},
-    byCustomType: _byCustomType = {},
-    byCustomControlType: _byCustomControlType = {},
-    byLayoutName: _byLayoutName = {},
+    byType = {},
+    byFormType = {},
+    byProperty = {},
+    byCustomType = {},
+    byCustomControlType = {},
+    byLayoutName = {},
     ...props
   }: FormFieldRendererProps & FormComponentSlotProps) => {
     const {
@@ -44,17 +44,6 @@ const FormComponentSlots = memo(
       preferPropertyComponent,
       preferSchemaTypeComponent,
     } = props.preference;
-
-    // Memoize all components
-    const byType = useMemo(() => _byType, [_byType]);
-    const byFormType = useMemo(() => _byFormType, [_byFormType]);
-    const byProperty = useMemo(() => _byProperty, [_byProperty]);
-    const byCustomType = useMemo(() => _byCustomType, [_byCustomType]);
-    const byCustomControlType = useMemo(
-      () => _byCustomControlType,
-      [_byCustomControlType],
-    );
-    const byLayoutName = useMemo(() => _byLayoutName, [_byLayoutName]);
 
     // Hierarchical order of precedence for component lookup:
     // 1. formComponentsByProperty
@@ -82,7 +71,7 @@ const FormComponentSlots = memo(
         const customType = props.formProperties.customContentType;
         if (byCustomType[customType]) {
           const FormComponent = byCustomType[customType] as FormFieldRenderer;
-          return <FormComponent {...props} />;
+          return FormComponent(props);
         }
       } else if (formType === "custom-control") {
         const controlType = props.formProperties.controlType;
@@ -90,7 +79,7 @@ const FormComponentSlots = memo(
           const FormComponent = byCustomControlType[
             controlType
           ] as FormFieldRenderer;
-          return <FormComponent {...props} />;
+          return FormComponent(props);
         }
       } else if (
         formType === "layout" &&
@@ -100,10 +89,10 @@ const FormComponentSlots = memo(
         const FormComponent = byLayoutName[
           props.formProperties.name
         ] as FormFieldRenderer;
-        return <FormComponent {...props} />;
+        return FormComponent(props);
       } else if (byFormType[formType]) {
         const FormComponent = byFormType[formType] as FormFieldRenderer;
-        return <FormComponent {...props} />;
+        return FormComponent(props);
       }
     } else if (preferSchemaTypeComponent) {
       const typesList = Array.isArray(props.schema.type)
@@ -113,7 +102,7 @@ const FormComponentSlots = memo(
       for (const type of typesList) {
         if (byType[type]) {
           const FormComponent = byType[type] as FormFieldRenderer;
-          return <FormComponent {...props} />;
+          return FormComponent(props);
         }
       }
     }

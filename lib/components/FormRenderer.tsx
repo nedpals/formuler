@@ -1,5 +1,5 @@
 import { getProperty } from "dot-prop";
-import { FC, useCallback, useMemo } from "react";
+import { FC, Fragment, memo, useCallback, useMemo } from "react";
 import { JSONSchemaForm } from "../jsf";
 import { expandSectionSelector } from "../json_schema";
 import { FormRenderContext, useFormRenderContext } from "../render_context";
@@ -9,7 +9,7 @@ import {
   OutletRendererProps,
 } from "../form_types";
 
-function FormRendererChild<
+const FormRendererChild = <
   RootSchemaType extends JSONSchemaForm,
   SchemaType extends JSONSchemaForm,
 >({
@@ -19,12 +19,9 @@ function FormRendererChild<
   preferFormTypeComponent = true,
   preferPropertyComponent = true,
   preferSchemaTypeComponent = true,
-}: FormRendererProps<SchemaType>) {
-  const { rootSchema, render: RenderComponent } = useFormRenderContext<
-    RootSchemaType,
-    SchemaType
-  >();
-
+}: FormRendererProps<SchemaType>) => {
+  const { rootSchema, render: RenderComponent } =
+    useFormRenderContext<RootSchemaType>();
   const _FormRendererChild = useCallback<FC<OutletRendererProps>>(
     ({
       parentProperty: _parentProperty,
@@ -33,19 +30,17 @@ function FormRendererChild<
       preferFormTypeComponent,
       preferPropertyComponent,
       preferSchemaTypeComponent,
-    }) => {
-      return (
-        <FormRendererChild
-          schema={_schema ?? schema}
-          parentProperty={_parentProperty ?? parentProperty}
-          property={_property ?? property}
-          // False by default to avoid infinite recursion. You must explicitly set it to true.
-          preferFormTypeComponent={preferFormTypeComponent ?? false}
-          preferPropertyComponent={preferPropertyComponent ?? false}
-          preferSchemaTypeComponent={preferSchemaTypeComponent ?? false}
-        />
-      );
-    },
+    }) => (
+      <FormRendererChild
+        schema={_schema ?? schema}
+        parentProperty={_parentProperty ?? parentProperty}
+        property={_property ?? property}
+        // False by default to avoid infinite recursion. You must explicitly set it to true.
+        preferFormTypeComponent={preferFormTypeComponent ?? false}
+        preferPropertyComponent={preferPropertyComponent ?? false}
+        preferSchemaTypeComponent={preferSchemaTypeComponent ?? false}
+      />
+    ),
     [schema, parentProperty, property],
   );
 
@@ -74,57 +69,62 @@ function FormRendererChild<
   }
 
   return (
-    <RenderComponent
-      rootSchema={rootSchema}
-      schema={schema}
-      Outlet={_FormRendererChild}
-      fullProperty={fullProperty}
-      property={property}
-      formProperties={schema.formProperties}
-      preference={preference}
-    />
+    <Fragment>
+      {RenderComponent({
+        rootSchema: rootSchema,
+        schema: schema,
+        Outlet: _FormRendererChild,
+        fullProperty: fullProperty,
+        property: property,
+        formProperties: schema.formProperties,
+        preference: preference,
+      })}
+    </Fragment>
   );
-}
+};
+FormRendererChild.displayName = "FormRendererChild";
 
-export default function FormRenderer<SchemaType extends JSONSchemaForm>({
-  className,
-  render,
-  section,
-  schema,
-}: Omit<FormRendererProps<SchemaType>, "property" | "parentProperty"> & {
-  section?: string;
-  render: FormFieldRenderer;
-  className?: string;
-}) {
-  const _render = useCallback(render, []);
+const FormRenderer = memo(
+  <SchemaType extends JSONSchemaForm>({
+    className,
+    render,
+    section,
+    schema,
+  }: Omit<FormRendererProps<SchemaType>, "property" | "parentProperty"> & {
+    section?: string;
+    render: FormFieldRenderer;
+    className?: string;
+  }) => {
+    const expandedSectionSelector = useMemo(
+      () => (section ? expandSectionSelector(schema, section) : undefined),
+      [schema, section],
+    );
 
-  const expandedSectionSelector = useMemo(
-    () => (section ? expandSectionSelector(schema, section) : undefined),
-    [schema, section],
-  );
+    const selectedSchema = useMemo(
+      () =>
+        expandedSectionSelector
+          ? getProperty(schema, expandedSectionSelector)!
+          : schema,
+      [schema, expandedSectionSelector],
+    );
 
-  const selectedSchema = useMemo(
-    () =>
-      expandedSectionSelector
-        ? getProperty(schema, expandedSectionSelector)!
-        : schema,
-    [schema, expandedSectionSelector],
-  );
-
-  return (
-    <FormRenderContext rootSchema={selectedSchema} render={_render}>
+    return (
       <div className={className}>
-        <FormRendererChild
-          schema={selectedSchema}
-          property={section ?? ""}
-          parentProperty=""
-          preferPropertyComponent
-          preferFormTypeComponent
-          preferSchemaTypeComponent
-        />
+        <FormRenderContext rootSchema={selectedSchema} render={render}>
+          <FormRendererChild
+            schema={selectedSchema}
+            property={section ?? ""}
+            parentProperty=""
+            preferPropertyComponent
+            preferFormTypeComponent
+            preferSchemaTypeComponent
+          />
+        </FormRenderContext>
       </div>
-    </FormRenderContext>
-  );
-}
+    );
+  },
+);
 
 FormRenderer.displayName = "FormRenderer";
+
+export default FormRenderer;

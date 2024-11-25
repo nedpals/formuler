@@ -3,10 +3,43 @@ import {
   JSONSchemaForm,
   FormRenderer,
   createDataFromSchema,
+  FormTypeFieldRenderer,
+  FormFieldRenderer,
 } from "../dist/formuler";
-import { Input } from "../dist/simple_form";
-import { SimpleForm, SimpleFormRenderer } from "../dist/simple_form";
+import {
+  Input,
+  useSimpleFormController,
+  SimpleForm,
+  SimpleFormRenderer,
+} from "../dist/simple_form";
 import "./App.css";
+
+const Specific: FormFieldRenderer = (props) => {
+  const { value: nameValue } = useSimpleFormController<string>(
+    "personal_information.name",
+  );
+
+  if (
+    props.fullProperty !== "personal_information.name" &&
+    nameValue !== "123"
+  ) {
+    return null;
+  }
+
+  return <p>Matched!</p>;
+};
+
+const SampleInput: FormTypeFieldRenderer<"input"> = (props) => {
+  const { value } = useSimpleFormController<string>(props.fullProperty);
+
+  return (
+    <div>
+      <p style={{ marginBottom: 0 }}>{props.formProperties.label}</p>
+      <Input {...props} />
+      <p>{value}</p>
+    </div>
+  );
+};
 
 const schema: JSONSchemaForm = {
   type: "object",
@@ -125,6 +158,11 @@ function App() {
             render={(props) => (
               <SimpleFormRenderer
                 {...props}
+                formComponentsByProperty={{
+                  email: (props) => {
+                    return <p>{JSON.stringify(data)}</p>;
+                  },
+                }}
                 formComponentsByType={{
                   string: () => <p>test</p>,
                   object: ({ schema, Outlet, fullProperty }) => {
@@ -153,19 +191,17 @@ function App() {
                   },
                 }}
                 formComponentsByFormType={{
-                  input: (props) => (
-                    <div>
-                      <p style={{ marginBottom: 0 }}>
-                        {props.formProperties.label}
-                      </p>
-                      <Input {...props} />
-                    </div>
-                  ),
+                  input: SampleInput,
                 }}
               />
             )}
           />
         </SimpleForm>
+
+        <FormRenderer
+          schema={schema}
+          render={() => <p>{JSON.stringify(data)}</p>}
+        />
       </div>
 
       <div
